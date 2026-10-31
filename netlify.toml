@@ -1,0 +1,17 @@
+# Netlify configuration for the RIXO AI Trading PRO frontend (static, no build step).
+# Publish directory is the folder containing index.html. There is no build command.
+[build]
+  publish = "."
+  command = ""
+
+# The service worker must never be served from a long-lived cache, or updates
+# (new cache names like rixo-pro-v7) will not reach installed users promptly.
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache"

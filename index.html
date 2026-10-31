@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09070f">
+<meta name="description" content="RIXO AI Trading PRO — simulation-only mobile trading dashboard. Sample prices only. No live market data, no AI service, no broker connection.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RIXO PRO">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>RIXO AI Trading PRO</title>
+<style>
+/* ============================================================
+   RIXO AI Trading PRO — simulation only
+   Black / neon-purple / silver theme, mobile-first.
+   No live prices, no AI service, no broker connection.
+   All prices in this file are sample data.
+   ============================================================ */
+:root {
+  --bg: #09070f;
+  --panel: #15111f;
+  --purple: #a855f7;
+  --silver: #d4d4dc;
+  --green: #35e6a1;
+  --red: #ff5577;
+  --muted: #928b9e;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding-bottom: 96px;
+}
+header {
+  padding: 20px 18px;
+  border-bottom: 1px solid #292035;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo { font-size: 19px; font-weight: 900; letter-spacing: 1px; }
+.logo span { color: var(--purple); }
+.badge {
+  color: var(--purple);
+  border: 1px solid var(--purple);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: bold;
+}
+main { padding: 16px; max-width: 640px; margin: 0 auto; }
+.page { display: none; }
+.page.active { display: block; }
+.label { color: var(--muted); font-size: 12px; }
+.balance {
+  background: linear-gradient(135deg, #211333, #111019);
+  border: 1px solid #573477;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.balance h1 { font-size: 35px; margin: 10px 0; }
+.profit { color: var(--green); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid #292235;
+  border-radius: 14px;
+  padding: 15px;
+  min-width: 0;
+}
+.card strong { display: block; font-size: 19px; margin-top: 9px; overflow-wrap: anywhere; }
+h2 { font-size: 17px; margin-top: 24px; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+.primary {
+  width: 100%;
+  background: var(--purple);
+  color: white;
+  border: 0;
+  padding: 13px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.secondary {
+  background: #21172e;
+  color: white;
+  border: 1px solid #4c3264;
+  padding: 10px;
+  border-radius: 9px;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  background: #0d0a13;
+  color: white;
+  border: 1px solid #41344d;
+  border-radius: 9px;
+  margin: 7px 0 12px;
+}
+textarea { min-height: 80px; resize: vertical; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.asset { padding: 15px 0; border-bottom: 1px solid #30283a; }
+.asset small { display: block; color: var(--muted); margin-top: 5px; }
+.green { color: var(--green); }
+.red { color: var(--red); }
+.chart-box {
+  height: 245px;
+  position: relative;
+  background: #100c18;
+  border-radius: 12px;
+  border: 1px solid #30233e;
+  overflow: hidden;
+  margin-top: 12px;
+}
+canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; }
+.chart-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.chip {
+  background: #21172e; color: var(--silver);
+  border: 1px solid #4c3264; padding: 9px 12px; border-radius: 999px; font-size: 13px;
+}
+.chip.active { background: var(--purple); color: white; border-color: var(--purple); }
+.tabs {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #100c18; border-top: 1px solid #352640;
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  padding: 9px 2px calc(9px + env(safe-area-inset-bottom));
+  z-index: 5;
+}
+.tab { background: transparent; border: 0; color: var(--muted); font-size: 10px; padding: 8px 0; }
+.tab span { display: block; font-size: 18px; margin-bottom: 4px; }
+.tab.active { color: var(--purple); }
+.trade-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.buy { background: #137d5b; }
+.sell { background: #9d2845; }
+.notice { color: var(--muted); font-size: 11px; line-height: 1.5; margin: 14px 0; }
+.trade { border-bottom: 1px solid #30283a; padding: 12px 0; font-size: 13px; }
+.opt-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+.opt-table th, .opt-table td { padding: 8px 4px; border-bottom: 1px solid #30283a; text-align: right; }
+.opt-table th:first-child, .opt-table td:first-child { text-align: left; }
+.range-btn { background: #21172e; color: var(--silver); border: 1px solid #4c3264; padding: 8px 4px; border-radius: 8px; font-size: 12px; }
+.range-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+.invest-item { padding: 14px 0; border-bottom: 1px solid #30283a; cursor: pointer; }
+.detail-box { border: 1px solid #573477; border-radius: 14px; padding: 15px; margin-top: 12px; background: #171022; }
+.signal-buy { color: #35e6a1; font-weight: bold; }
+.signal-sell { color: #ff5577; font-weight: bold; }
+.signal-hold { color: #a855f7; font-weight: bold; }
+.order-item { border-bottom: 1px solid #30283a; padding: 12px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">RIXO <span>AI</span> TRADING PRO</div>
+  <div class="badge">PRO SIM</div>
+  <div class="badge" id="offlineStatus">Online</div>
+</header>
+<main>
+<!-- ================= HOME / PORTFOLIO ================= -->
+<section class="page active" id="home">
+  <div class="balance">
+    <div class="label">SIMULATED PORTFOLIO VALUE</div>
+    <h1 id="equity">$300.00</h1>
+    <div class="profit" id="totalPL">+$0.00 (0.00%)</div>
+    <p class="notice">Paper trading only · No real money involved · Prices are sample data, not live quotes.</p>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="label">AVAILABLE CASH</div><strong id="cash">$300.00</strong></div>
+    <div class="card"><div class="label">OPEN POSITIONS</div><strong id="positions">0</strong></div>
+    <div class="card"><div class="label">WIN RATE</div><strong id="winRate">0%</strong></div>
+    <div class="card"><div class="label">CLOSED TRADES</div><strong id="closedTrades">0</strong></div>
+  </div>
+
+  <h2>Market Chart</h2>
+  <select id="chartAsset" onchange="onChartAssetChange()">
+    <option value="AAPL">AAPL · Apple (Stock)</option>
+    <option value="NVDA">NVDA · NVIDIA (Stock)</option>
+    <option value="TSLA">TSLA · Tesla (Stock)</option>
+    <option value="BTC">BTC · Bitcoin (Crypto)</option>
+    <option value="ETH">ETH · Ethereum (Crypto)</option>
+    <option value="EURUSD">EUR/USD · Forex</option>
+  </select>
+  <div class="chips" id="timeframeChips"><button class="chip active" onclick="setTimeframe('1m',this)">1m</button><button class="chip" onclick="setTimeframe('5m',this)">5m</button><button class="chip" onclick="setTimeframe('15m',this)">15m</button><button class="chip" onclick="setTimeframe('1h',this)">1h</button><button class="chip" onclick="setTimeframe('4h',this)">4h</button><button class="chip" onclick="setTimeframe('1D',this)">1D</button></div>
+  <div class="chips" id="indicatorChips"><button class="chip active" onclick="toggleIndicator('sma',this)">SMA 10</button><button class="chip" onclick="toggleIndicator('ema',this)">EMA 20</button><button class="chip" onclick="toggleIndicator('bands',this)">Bands</button></div>
+  <div class="row"><span class="label">CANDLE ZOOM</span><div><button class="secondary" onclick="zoomChart(-8)">−</button> <button class="secondary" onclick="zoomChart(8)">+</button></div></div>
+  <div class="chart-box"><canvas id="chart"></canvas></div>
+  <div id="candleInfo" class="notice">Tap a candle to see its open, high, low and close. Drag horizontally to scroll back through candles.</div>
+  <div class="chart-actions">
+    <button class="secondary" onclick="scrollChart(10)">◀ Earlier</button>
+    <button class="secondary" onclick="advanceMarket()">Next candle ▶</button>
+    <button class="secondary" onclick="scrollChart(-10)">Latest ▶</button>
+  </div>
+  <p class="notice">Chart prices are randomly generated sample data, not live market prices.</p>
+
+  <h2>Quick Trade</h2>
+  <label class="label" for="tradeAsset">Asset</label>
+  <select id="tradeAsset">
+    <option value="AAPL">AAPL · Apple</option>
+    <option value="NVDA">NVDA · NVIDIA</option>
+    <option value="TSLA">TSLA · Tesla</option>
+    <option value="BTC">BTC · Bitcoin</option>
+    <option value="ETH">ETH · Ethereum</option>
+    <option value="EURUSD">EUR/USD · Forex</option>
+  </select>
+  <label class="label" for="amount">Dollar amount</label>
+  <input id="amount" type="number" min="1" step="1" value="25">
+  <div class="trade-buttons">
+    <button class="primary buy" onclick="trade('BUY')">BUY / OPEN</button>
+    <button class="primary sell" onclick="trade('SELL')">SELL / CLOSE</button>
+  </div>
+  <p class="notice">Simulation only. This simplified simulator supports long positions only. Selling closes an existing position in the selected asset. A 0.5% fee applies on entry and exit.</p>
+  <button class="secondary" onclick="showPage('scanner', document.querySelectorAll('.tab')[3])">Open RIXO AI Assistant (rule-based, sample data)</button>
+
+  <h2>Advanced Orders — Paper Trading</h2>
+  <p class="notice">Market orders execute immediately (Quick Trade above). Limit, stop-loss, and take-profit orders below stay open and only fill when the sample market advances to your trigger price. No real order is ever sent.</p>
+  <div class="card">
+    <div class="label">AVAILABLE BUYING POWER (simulated)</div><strong id="buyingPower">$300.00</strong>
+    <p class="notice">Buying power = available cash minus cash reserved for open limit-buy orders.</p>
+    <label class="label" for="orderType">Order type</label>
+    <select id="orderType" onchange="updateOrderForm()">
+      <option value="LIMIT_BUY">Limit Buy — buy when sample price falls to trigger</option>
+      <option value="LIMIT_SELL">Limit Sell — close stock positions when sample price rises to trigger</option>
+      <option value="STOP_LOSS">Stop-Loss — close stock positions when sample price falls to trigger</option>
+      <option value="TAKE_PROFIT">Take-Profit — close stock positions when sample price rises to trigger</option>
+    </select>
+    <label class="label" for="orderAsset">Asset</label>
+    <select id="orderAsset">
+      <option value="AAPL">AAPL · Apple</option><option value="NVDA">NVDA · NVIDIA</option><option value="TSLA">TSLA · Tesla</option>
+      <option value="BTC">BTC · Bitcoin</option><option value="ETH">ETH · Ethereum</option><option value="EURUSD">EUR/USD · Forex</option>
+    </select>
+    <div id="orderAmountWrap"><label class="label" for="orderAmount">Dollar amount (limit buy only)</label>
+    <input id="orderAmount" type="number" min="1" step="1" value="25"></div>
+    <label class="label" for="orderTrigger">Trigger price (sample price)</label>
+    <input id="orderTrigger" type="number" min="0.0001" step="any" value="100">
+    <button class="primary" onclick="placeOrder()">PLACE SIMULATED ORDER</button>
+    <div id="orderFormNote" class="notice"></div>
+  </div>
+  <h2>Open Orders</h2>
+  <div id="openOrders"></div>
+  <h2>Order History</h2>
+  <div id="orderHistoryList"></div>
+
+  <h2>Open Positions</h2>
+  <div id="openPositions"></div>
+</section>
+
+<!-- ================= MARKETS ================= -->
+<section class="page" id="markets">
+  <h2>Market Watch</h2>
+  <div class="card">
+    <div class="label">MARKET DATA SOURCE</div>
+    <strong id="dataModeText">Simulated (active)</strong>
+    <p class="notice" id="marketStatusText">Simulated market: always open for practice. This is not a real market session, and prices below are sample data, not live or delayed quotes.</p>
+    <label class="label" for="proxyUrl">Backend proxy URL only (no API key — keys stay server-side)</label>
+    <input id="proxyUrl" type="url" placeholder="https://your-backend.example.com">
+    <div class="trade-buttons">
+      <button class="secondary" onclick="saveProxyUrl()">Save Proxy URL</button>
+      <button class="secondary" onclick="tryLiveData()">Test Live Connection</button>
+    </div>
+    <div class="trade-buttons">
+      <button class="secondary" onclick="setDataModeSimulated()">Use Simulated Data</button>
+      <button class="secondary" onclick="enableLiveMode()">Switch to Live Mode</button>
+      <button class="secondary" onclick="refreshLiveData()">Refresh Live Data</button>
+    </div>
+    <button class="secondary" onclick="showLiveDataSetup()">Live Data Setup Instructions</button>
+    <div id="liveStatus" class="notice">Live data: NOT CONNECTED. App is running on simulated sample data.</div>
+    <div id="liveSetup" class="notice" style="display:none"></div>
+  </div>
+  <p class="notice">Illustrative sample prices. These update locally only and are not live quotes.</p>
+  <div class="chips" id="marketFilters">
+    <button class="chip active" onclick="setMarketFilter('all',this)">All</button>
+    <button class="chip" onclick="setMarketFilter('stock',this)">Stocks</button>
+    <button class="chip" onclick="setMarketFilter('crypto',this)">Crypto</button>
+    <button class="chip" onclick="setMarketFilter('forex',this)">Forex</button>
+    <button class="chip" onclick="setMarketFilter('options',this)">Options</button>
+  </div>
+  <div id="marketList"></div>
+  <div id="optionsSection">
+    <h2>Options — Sample Chain</h2>
+    <p class="notice">Sample option contracts only. These are not real contracts, not live option quotes, and buying one here does not place a real order.</p>
+    <label class="label" for="optUnderlying">Underlying</label>
+    <select id="optUnderlying" onchange="renderOptions()">
+      <option value="AAPL">AAPL</option>
+      <option value="NVDA">NVDA</option>
+      <option value="TSLA">TSLA</option>
+    </select>
+    <label class="label" for="optAmount">Simulated amount per option trade ($)</label>
+    <input id="optAmount" type="number" min="1" step="1" value="25">
+    <div id="optionsChain"></div>
+  </div>
+</section>
+
+
+<!-- ================= PORTFOLIO ================= -->
+<section class="page" id="portfolio">
+  <div class="balance">
+    <div class="label">TOTAL SIMULATED PORTFOLIO BALANCE</div>
+    <h1 id="portfolioEquity">$300.00</h1>
+    <div class="profit" id="portfolioPL">+$0.00 (0.00%)</div>
+    <p class="notice">Paper-trading simulator only · All prices are sample data, not live quotes · No brokerage connected.</p>
+  </div>
+  <h2>Performance</h2>
+  <div class="chips" id="portfolioRanges">
+    <button class="range-btn" onclick="setPortfolioRange('1D',this)">1D</button>
+    <button class="range-btn" onclick="setPortfolioRange('1W',this)">1W</button>
+    <button class="range-btn" onclick="setPortfolioRange('1M',this)">1M</button>
+    <button class="range-btn" onclick="setPortfolioRange('3M',this)">3M</button>
+    <button class="range-btn" onclick="setPortfolioRange('1Y',this)">1Y</button>
+    <button class="range-btn active" onclick="setPortfolioRange('ALL',this)">ALL</button>
+  </div>
+  <div class="chart-box"><canvas id="portfolioChart"></canvas></div>
+  <div id="portfolioChartInfo" class="notice">Tap a point on the chart to see that simulated equity value. The chart updates when simulated trades change your equity.</div>
+  <div id="portfolioRangeNote" class="notice"></div>
+  <div class="grid">
+    <div class="card"><div class="label">AVAILABLE CASH</div><strong id="portfolioCash">$300.00</strong></div>
+    <div class="card"><div class="label">INVESTED VALUE</div><strong id="portfolioInvested">$0.00</strong></div>
+    <div class="card"><div class="label">TOTAL PROFIT / LOSS</div><strong id="portfolioTotalPL">$0.00</strong></div>
+    <div class="card"><div class="label">PERCENTAGE RETURN</div><strong id="portfolioReturn">0.00%</strong></div>
+  </div>
+  <h2>Portfolio Breakdown</h2><div class="grid"><div class="card"><div class="label">UNREALIZED P/L</div><strong id="pfUnrealized">$0.00</strong></div><div class="card"><div class="label">TOTAL RETURN AFTER FEES</div><strong id="pfNetReturn">0.00%</strong></div></div><div id="portfolioAllocation" class="card notice">Allocation updates with positions.</div><h2>My Investments</h2>
+  <p class="notice">Tap any investment to open its detailed position view.</p>
+  <div id="investmentsList"></div>
+  <div id="positionDetail" class="detail-box" style="display:none"></div>
+  <h2>Performance Statistics</h2>
+  <div class="grid">
+    <div class="card"><div class="label">WIN RATE</div><strong id="pfWinRate">0%</strong></div>
+    <div class="card"><div class="label">COMPLETED TRADES</div><strong id="pfCompleted">0</strong></div>
+    <div class="card"><div class="label">REALIZED P/L</div><strong id="pfRealized">$0.00</strong></div>
+    <div class="card"><div class="label">TOTAL TRADING FEES</div><strong id="pfFees">$0.00</strong></div>
+    <div class="card"><div class="label">AVG WIN</div><strong id="pfAvgWin">$0.00</strong></div>
+    <div class="card"><div class="label">AVG LOSS</div><strong id="pfAvgLoss">$0.00</strong></div>
+    <div class="card"><div class="label">PROFIT FACTOR</div><strong id="pfProfitFactor">—</strong></div>
+    <div class="card"><div class="label">AVAILABLE BUYING POWER</div><strong id="pfBuyingPower">$300.00</strong></div>
+  </div>
+  <h2>Transaction History</h2>
+  <p class="notice">Simulated purchases, sales, and fees only.</p>
+  <div id="transactionList"></div>
+</section>
+
+<!-- ================= SCANNER ================= -->
+<section class="page" id="scanner">
+  <h2>RIXO AI Assistant</h2>
+  <div class="card">
+    <div class="label">RULE-BASED ANALYSIS ENGINE — NOT A CONNECTED AI MODEL</div>
+    <p class="notice">This dashboard scores sample candles with transparent rules. It does not generate AI predictions, does not use live prices, and is not financial advice. Every score below shows exactly which indicators contributed to it.</p>
+    <label class="label" for="aiAsset">Asset to analyse</label>
+    <select id="aiAsset">
+      <option value="AAPL">AAPL · Apple</option><option value="NVDA">NVDA · NVIDIA</option><option value="TSLA">TSLA · Tesla</option>
+      <option value="BTC">BTC · Bitcoin</option><option value="ETH">ETH · Ethereum</option><option value="EURUSD">EUR/USD · Forex</option>
+    </select>
+    <label class="label" for="aiTimeframe">Timeframe (illustrative aggregation)</label>
+    <select id="aiTimeframe"><option>1m</option><option>5m</option><option>15m</option><option selected>1h</option><option>4h</option><option>1D</option></select>
+    <button class="primary" onclick="renderAiAssistant()">ANALYSE WITH RIXO AI ASSISTANT</button>
+    <button class="secondary" onclick="callAiAssistant()">Ask Real AI (via backend, if connected)</button>
+    <div id="aiBackendResult" class="notice">Real AI: NOT CONNECTED. The rule-based assistant below is the fallback, and it is always available.</div>
+    <div id="aiDashboard"></div>
+  </div>
+  <h2>RIXO AI Scanner</h2>
+  <div class="card">
+    <div class="label">SIMULATED SIGNAL REVIEW</div>
+    <h2 id="signalTitle">Waiting for scan</h2>
+    <p id="signalText">Scan sample market candles to see an educational trend explanation.</p>
+    <button class="primary" onclick="scanMarket()">ANALYZE MARKET</button>
+  </div>
+  <p class="notice">This is rule-based educational analysis of sample candles. It is not a connected AI model, not a prediction of future prices, and not financial advice.</p>
+  <div class="card"><label class="label" for="scannerTimeframe">Scanner timeframe (illustrative)</label><select id="scannerTimeframe" onchange="scanMarket()"><option>1m</option><option>5m</option><option>15m</option><option selected>1h</option><option>4h</option><option>1D</option></select></div><div id="scanResults"></div>
+</section>
+
+<!-- ================= RISK CALCULATOR ================= -->
+<section class="page" id="calculator">
+  <h2>Risk Calculator</h2>
+  <div class="card">
+    <label class="label">Account balance ($)</label>
+    <input id="calcBalance" type="number" value="300" min="0">
+    <label class="label">Risk per trade (%)</label>
+    <input id="riskPct" type="number" value="0.5" min="0.01" max="100" step="0.1">
+    <label class="label">Entry price ($)</label>
+    <input id="entry" type="number" value="100" min="0.01" step="any">
+    <label class="label">Stop-loss price ($)</label>
+    <input id="stop" type="number" value="98" min="0" step="any">
+    <label class="label">Reward-to-risk ratio (take-profit)</label>
+    <input id="rr" type="number" value="2" min="0.1" step="0.1">
+    <button class="primary" onclick="calculateRisk()">CALCULATE</button>
+    <div id="riskResult" class="notice"></div>
+  </div>
+  <h2>Advanced Risk Settings</h2>
+  <div class="card">
+    <p class="notice">These settings are saved on this device only. They add warnings to simulated trades — they do not block a trade, and they are not a guarantee against losses.</p>
+    <label class="label" for="maxExposurePct">Maximum portfolio exposure per trade (%)</label>
+    <input id="maxExposurePct" type="number" min="1" max="100" step="1" value="50">
+    <label class="label" for="dailyLossPct">Daily simulated loss limit (% of $300 start)</label>
+    <input id="dailyLossPct" type="number" min="0.1" max="100" step="0.1" value="2">
+    <button class="primary" onclick="saveRiskSettings()">SAVE RISK SETTINGS</button>
+    <div id="riskSettingsResult" class="notice"></div>
+    <div id="riskWarnings" class="notice"></div>
+  </div>
+</section>
+
+<!-- ================= HISTORY / JOURNAL ================= -->
+<section class="page" id="history">
+  <h2>Trading Journal</h2>
+  <div class="grid">
+    <div class="card"><div class="label">NET REALIZED P/L</div><strong id="realized">$0.00</strong></div>
+    <div class="card"><div class="label">WIN / LOSS</div><strong id="winLoss">0 / 0</strong></div>
+    <div class="card"><div class="label">AVG WIN</div><strong id="avgWin">$0.00</strong></div>
+    <div class="card"><div class="label">AVG LOSS</div><strong id="avgLoss">$0.00</strong></div>
+    <div class="card"><div class="label">PROFIT FACTOR</div><strong id="profitFactor">—</strong></div>
+    <div class="card"><div class="label">BEST / WORST</div><strong id="bestWorst">—</strong></div>
+  </div>
+  <label class="label" for="journalNote">Journal note (saved on this device)</label>
+  <textarea id="journalNote" placeholder="What did I learn from these simulated trades?"></textarea>
+  <button class="primary" onclick="saveJournalNote()">SAVE NOTE</button>
+  <div id="savedNote" class="notice"></div>
+  <h2>Move My Account to Another Site or Device</h2>
+  <p class="notice">Browser localStorage does NOT transfer between different website addresses or devices. If you open RIXO on a new hosted address or a new iPhone, it will start at $300 there unless you move your account with the steps below. Export here first, then import that file on the other site/device. The export contains only simulated account data, risk settings, and your journal note. It contains NO API keys, proxy credentials, or real account information — any credential-like fields in an import file are ignored.</p>
+  <button class="primary" onclick="exportAccount()">EXPORT SIMULATED ACCOUNT (DOWNLOAD JSON)</button>
+  <div id="exportResult" class="notice"></div>
+  <label class="label" for="importFile">Import a RIXO export file (.json)</label>
+  <input id="importFile" type="file" accept=".json,application/json">
+  <button class="primary" onclick="importAccountFromFile()">IMPORT SIMULATED ACCOUNT</button>
+  <div id="importResult" class="notice"></div>
+  <div id="historyList"></div>
+  <button class="secondary" onclick="resetAccount()">Reset simulated account</button>
+  <p class="notice">Resetting clears this browser's locally stored simulation history. It does not affect any real account, because none is connected.</p>
+</section>
+</main>
+
+<nav class="tabs">
+  <button class="tab active" onclick="showPage('home',this)"><span>⌂</span>Home</button>
+  <button class="tab" onclick="showPage('markets',this)"><span>↗</span>Markets</button>
+  <button class="tab" onclick="showPage('portfolio',this)"><span>▦</span>Portfolio</button>
+  <button class="tab" onclick="showPage('scanner',this)"><span>⌕</span>Scanner</button>
+  <button class="tab" onclick="showPage('calculator',this)"><span>⊞</span>Risk</button>
+  <button class="tab" onclick="showPage('history',this)"><span>☷</span>History</button>
+</nav>
+<script>
+/* ================= STATE (persistent, local only) ================= */
+const STARTING_CASH = 300;
+const FEE_RATE = 0.005; // 0.5% simulated fee on entry and on exit
+const STORAGE_KEY = "rixo_ai_trading_pro_v1";
+const NOTE_KEY = "rixo_ai_trading_pro_note_v1";
+const RISK_SETTINGS_KEY = "rixo_ai_trading_pro_risk_v1"; // device-only risk preferences, never an API key
+
+const initialPrices = { AAPL: 225, NVDA: 180, TSLA: 350, BTC: 110000, ETH: 3900, EURUSD: 1.16 };
+const categories = { AAPL: "stock", NVDA: "stock", TSLA: "stock", BTC: "crypto", ETH: "crypto", EURUSD: "forex" };
+const categoryLabels = { stock: "Stock", crypto: "Crypto", forex: "Forex" };
+
+let prices = { ...initialPrices };
+let state = loadState();
+let candles = {};
+let chartOffset = 0;
+let marketFilter = "all";
+let portfolioRange = "ALL";
+let selectedInvestmentKey = null;
+let drag = null;
+let chartTimeframe = '1m';
+let chartCount = 35;
+const activeIndicators = {sma:true,ema:false,bands:false};
+function setTimeframe(tf, btn) { chartTimeframe=tf; chartOffset=0; document.querySelectorAll('#timeframeChips .chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');drawChart(); }
+function toggleIndicator(key, btn) {activeIndicators[key]=!activeIndicators[key];btn.classList.toggle('active',activeIndicators[key]);drawChart();}
+function zoomChart(delta) {chartCount=Math.max(12,Math.min(65,chartCount+delta));chartOffset=0;drawChart();}
+function emaSeries(values,period) {let out=[], e=values[0], a=2/(period+1);values.forEach(v=>{e=v*a+e*(1-a);out.push(e)});return out;}
+function smaAt(values,idx,n) {if(idx<n-1)return null;return values.slice(idx-n+1,idx+1).reduce((a,b)=>a+b,0)/n;}
+function rsiValue(values,n=14) {if(values.length<=n)return 50;let gains=0,losses=0;for(let i=values.length-n;i<values.length;i++){let d=values[i]-values[i-1];gains+=Math.max(0,d);losses+=Math.max(0,-d)};return losses===0?(gains===0?50:100):100-100/(1+gains/losses);}
+function macdValue(values) {if(values.length<26)return 0;let a=emaSeries(values,12),b=emaSeries(values,26);return a[a.length-1]-b[b.length-1];}
+// The selected timeframe changes the educational candle aggregation, not a real-time feed.
+function timeframeCandles(symbol,tf) {const raw=makeCandles(symbol);const n={'1m':1,'5m':2,'15m':3,'1h':4,'4h':6,'1D':8}[tf]||1;if(n===1)return raw;const out=[];for(let i=0;i<raw.length;i+=n){const part=raw.slice(i,i+n);if(!part.length)continue;out.push({open:part[0].open,close:part[part.length-1].close,high:Math.max(...part.map(c=>c.high)),low:Math.min(...part.map(c=>c.low)),volume:part.reduce((a,c)=>a+(c.volume||0),0)});}return out;}
+
+
+function loadState() {
+  // Phase 4 repair: salvage a saved account instead of silently resetting it to $300
+  // when one field is malformed. Only a completely unreadable save starts fresh.
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved && typeof saved === "object") {
+      const cash = Number(saved.cash);
+      const positions = Array.isArray(saved.positions) ? saved.positions.map(function (pos) {
+        if (!pos || typeof pos !== "object") return null;
+        const clean = Object.assign({}, pos);
+        clean.cost = Number(pos.cost) || 0;
+        clean.entryFee = Number(pos.entryFee) || 0;
+        if (clean.kind === "option") {
+          clean.contracts = Number(pos.contracts) || 0;
+          clean.premiumEntry = Number(pos.premiumEntry) || 0;
+          clean.expiryDays = Number(pos.expiryDays) || 7;
+        } else {
+          clean.kind = "stock";
+          clean.qty = Number(pos.qty) || 0;
+          clean.entry = Number(pos.entry) || 0;
+        }
+        return clean;
+      }).filter(Boolean) : [];
+      const history = Array.isArray(saved.history) ? saved.history.map(function (t) {
+        if (!t || typeof t !== "object") return null;
+        return Object.assign({}, t, { net: Number(t.net) || 0, fees: Number(t.fees) || 0, gross: Number(t.gross) || 0 });
+      }).filter(Boolean) : [];
+      return {
+        cash: Number.isFinite(cash) ? cash : STARTING_CASH,
+        positions: positions, history: history,
+        transactions: Array.isArray(saved.transactions) ? saved.transactions : [],
+        equityHistory: Array.isArray(saved.equityHistory) ? saved.equityHistory.filter(function (pt) { return pt && Number.isFinite(Number(pt.equity)); }) : [],
+        // Phase 5 migration: new fields default to empty — old cash, positions and history are untouched.
+        orders: Array.isArray(saved.orders) ? saved.orders : [],
+        orderHistory: Array.isArray(saved.orderHistory) ? saved.orderHistory : []
+      };
+    }
+  } catch (e) {}
+  return { cash: STARTING_CASH, positions: [], history: [], transactions: [], equityHistory: [], orders: [], orderHistory: [] };
+}
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+function money(n) {
+  return "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtPrice(symbol, n) {
+  return Number(n).toLocaleString("en-US", { maximumFractionDigits: symbol === "EURUSD" ? 4 : 2 });
+}
+
+/* ================= SAMPLE CANDLES ================= */
+function makeCandles(symbol) {
+  if (candles[symbol]) return candles[symbol];
+  let p = prices[symbol];
+  let list = [];
+  for (let i = 0; i < 70; i++) {
+    let open = p;
+    let change = (Math.random() - 0.48) * p * 0.025;
+    let close = Math.max(0.0001, open + change);
+    let high = Math.max(open, close) + Math.random() * p * 0.008;
+    let low = Math.max(0.0001, Math.min(open, close) - Math.random() * p * 0.008);
+    // Phase 5: sample volume only — randomly generated locally, never a real traded volume.
+    let volume = Math.round(500 + Math.random() * 9500);
+    list.push({ open, close, high, low, volume });
+    p = close;
+  }
+  candles[symbol] = list;
+  return list;
+}
+function markPrice(symbol) {
+  const list = makeCandles(symbol);
+  return list[list.length - 1].close;
+}
+/* Advance the sample market by one candle, so open positions can move. */
+function advanceMarket() {
+  if (dataMode === "live") { alert("Sample market advance is disabled in live mode.\n\nUse Refresh Live Data to fetch fresh live quotes. Sample candles are not advanced while live mode is selected, so live prices are never silently replaced with sample prices."); return; }
+  Object.keys(prices).forEach(function (symbol) {
+    const list = makeCandles(symbol);
+    const last = list[list.length - 1].close;
+    const change = (Math.random() - 0.48) * last * 0.025;
+    const close = Math.max(0.0001, last + change);
+    list.push({
+      open: last, close: close,
+      high: Math.max(last, close) + Math.random() * last * 0.008,
+      low: Math.max(0.0001, Math.min(last, close) - Math.random() * last * 0.008),
+      volume: Math.round(500 + Math.random() * 9500)
+    });
+    if (list.length > 120) list.shift();
+  });
+  // Phase 5: pending limit/stop/take-profit orders only fill when the sample market advances.
+  checkOrders();
+  recordEquity();
+  render();
+  drawChart();
+  drawPortfolioChart();
+}
+
+/* ================= PORTFOLIO ================= */
+function currentValue(pos) {
+  if (pos.kind === "option") return pos.contracts * optionPremium(pos.symbol, pos.strike, pos.optionType, pos.expiryDays) * 100;
+  return pos.qty * markPrice(pos.symbol);
+}
+function portfolio() {
+  let marketValue = state.positions.reduce(function (sum, p) { return sum + currentValue(p); }, 0);
+  let equity = state.cash + marketValue;
+  return { marketValue: marketValue, equity: equity, pl: equity - STARTING_CASH };
+}
+function render() {
+  const p = portfolio();
+  document.getElementById("equity").textContent = money(p.equity);
+  document.getElementById("cash").textContent = money(state.cash);
+  document.getElementById("totalPL").textContent = (p.pl >= 0 ? "+" : "") + money(p.pl) + " (" + (p.pl / STARTING_CASH * 100).toFixed(2) + "%)";
+  document.getElementById("totalPL").className = p.pl >= 0 ? "profit" : "red";
+  document.getElementById("positions").textContent = state.positions.length;
+  document.getElementById("closedTrades").textContent = state.history.length;
+  const wins = state.history.filter(function (t) { return t.net > 0; }).length;
+  const losses = state.history.filter(function (t) { return t.net < 0; }).length;
+  document.getElementById("winRate").textContent = state.history.length ? Math.round(wins / state.history.length * 100) + "%" : "0%";
+  const realized = state.history.reduce(function (s, t) { return s + t.net; }, 0);
+  document.getElementById("realized").textContent = money(realized);
+  document.getElementById("winLoss").textContent = wins + " / " + losses;
+  const winTrades = state.history.filter(function (t) { return t.net > 0; });
+  const lossTrades = state.history.filter(function (t) { return t.net < 0; });
+  const avgWin = winTrades.length ? winTrades.reduce(function (s, t) { return s + t.net; }, 0) / winTrades.length : 0;
+  const avgLoss = lossTrades.length ? lossTrades.reduce(function (s, t) { return s + t.net; }, 0) / lossTrades.length : 0;
+  document.getElementById("avgWin").textContent = money(avgWin);
+  document.getElementById("avgLoss").textContent = money(avgLoss);
+  const grossWin = winTrades.reduce(function (s, t) { return s + t.net; }, 0);
+  const grossLoss = Math.abs(lossTrades.reduce(function (s, t) { return s + t.net; }, 0));
+  document.getElementById("profitFactor").textContent = grossLoss > 0 ? (grossWin / grossLoss).toFixed(2) : (grossWin > 0 ? "—" : "—");
+  if (state.history.length) {
+    const best = Math.max.apply(null, state.history.map(function (t) { return t.net; }));
+    const worst = Math.min.apply(null, state.history.map(function (t) { return t.net; }));
+    document.getElementById("bestWorst").textContent = money(best) + " / " + money(worst);
+  } else {
+    document.getElementById("bestWorst").textContent = "—";
+  }
+  renderMarkets();
+  renderOptions();
+  renderHistory();
+  renderPositions();
+  renderPortfolio();
+  renderOrders();
+  renderRiskWarnings();
+  updateDataStatus();
+  updateOfflineStatus();
+}
+
+/* ================= BUY / SELL (SIMULATION ONLY) ================= */
+function trade(side) {
+  const symbol = document.getElementById("tradeAsset").value;
+  const amount = Number(document.getElementById("amount").value);
+  const tradingPrice = getTradingPrice(symbol);
+  if (!tradingPrice.fresh) { alert("ORDER REJECTED — " + tradingPrice.reason + "\n\nSwitch to Simulated mode to practise with sample prices, or refresh live data and try again. No order was placed."); return; }
+  const price = tradingPrice.price;
+  if (!Number.isFinite(amount) || amount <= 0) { alert("Enter a valid dollar amount."); return; }
+  if (side === "BUY") {
+    const fee = amount * FEE_RATE;
+    const total = amount + fee;
+    // Phase 5: buying power = cash minus cash reserved for open limit-buy orders.
+    if (total > buyingPower()) { alert("Not enough simulated buying power, including the trading fee and cash reserved for open limit-buy orders. Available buying power: " + money(buyingPower())); return; }
+    const buyWarnings = riskWarningText(amount);
+    if (!confirm("SIMULATION ONLY — PAPER TRADE, NOT A REAL EXECUTION\n\nBuy " + symbol + " for " + money(amount) + " plus a " + money(fee) + " fee?\nPrice source: " + (tradingPrice.source === "live" ? "LIVE quote (fresh, " + new Date(tradingPrice.timestamp).toLocaleTimeString() + ")" : "SIMULATED sample price") + (buyWarnings ? "\n\nRISK WARNING:\n" + buyWarnings : ""))) return;
+    state.cash -= total;
+    state.positions.push({ id: Date.now(), kind: "stock", symbol: symbol, qty: amount / price, entry: price, cost: amount, entryFee: fee });
+    state.transactions.unshift({ type: "BUY", symbol: symbol, qty: amount / price, price: price, amount: amount, fee: fee, net: null, date: new Date().toLocaleString(), source: tradingPrice.source });
+    saveState(); recordEquity(); render(); alert("Simulated position opened. No real order was sent.");
+  } else {
+    // Phase 4 fix: the old SELL closed only the FIRST position for an asset and ignored
+    // the dollar amount, leaving other positions open with no explanation. Now it closes
+    // every stock position for the selected asset, with one total-net confirmation.
+    const indices = [];
+    state.positions.forEach(function (pos, i) { if (pos.symbol === symbol && pos.kind !== "option") indices.push(i); });
+    if (!indices.length) {
+      const hasOption = state.positions.some(function (pos) { return pos.symbol === symbol && pos.kind === "option"; });
+      if (hasOption) { alert("No open stock position for " + symbol + ". You have an option position for " + symbol + " — close it from Open Positions or from Portfolio > My Investments."); }
+      else { alert("No open position for " + symbol + "."); }
+      return;
+    }
+    const totalNet = indices.reduce(function (sum, i) {
+      const pos = state.positions[i];
+      const current = markPrice(symbol);
+      const proceeds = current * pos.qty;
+      return sum + (current - pos.entry) * pos.qty - pos.entryFee - proceeds * FEE_RATE;
+    }, 0);
+    if (!confirm("SIMULATION ONLY\n\nClose all " + indices.length + " stock position(s) for " + symbol + "?\nEstimated total net P/L: " + money(totalNet))) return;
+    indices.slice().sort(function (a, b) { return b - a; }).forEach(function (i) { closePositionByIndex(i, false); });
+    alert("Simulated position(s) closed. No real order was sent.");
+  }
+}
+function closePositionByIndex(index, askConfirm) {
+  const position = state.positions[index];
+  let current, gross, proceeds, exitFee, net, label;
+  if (dataMode === "live") {
+    const live = getTradingPrice(position.symbol);
+    if (!live.fresh) { alert("ORDER REJECTED — " + live.reason + "\n\nSwitch to Simulated mode, or refresh live data and try again. Position was not closed."); return; }
+    if (position.kind === "option") {
+      const underlyingPrice = live.price;
+      const intrinsic = position.optionType === "CALL" ? Math.max(0, underlyingPrice - position.strike) : Math.max(0, position.strike - underlyingPrice);
+      const timeValue = underlyingPrice * 0.02 * Math.sqrt(Math.max(1, position.expiryDays) / 30);
+      current = Math.max(0.05, intrinsic + timeValue);
+    } else {
+      current = live.price;
+    }
+  }
+  if (position.kind === "option") {
+    // In live mode, current was already set from the fresh live underlying price above; in simulated mode, use the sample premium.
+    if (dataMode !== "live") current = optionPremium(position.symbol, position.strike, position.optionType, position.expiryDays);
+    proceeds = current * 100 * position.contracts;
+    gross = proceeds - position.cost;
+    exitFee = proceeds * FEE_RATE;
+    net = gross - position.entryFee - exitFee;
+    label = position.optionType + " " + position.symbol + " @" + position.strike;
+  } else {
+    if (dataMode !== "live") current = markPrice(position.symbol);
+    gross = (current - position.entry) * position.qty;
+    proceeds = current * position.qty;
+    exitFee = proceeds * FEE_RATE;
+    net = gross - position.entryFee - exitFee;
+    label = position.symbol;
+  }
+  if (askConfirm && !confirm("SIMULATION ONLY\n\nClose " + label + " position?\nEstimated net P/L: " + money(net))) return;
+  state.cash += proceeds - exitFee;
+  state.transactions.unshift({ type: "SELL", symbol: label, qty: position.kind === "option" ? position.contracts : position.qty, price: current, amount: proceeds, fee: exitFee, net: net, date: new Date().toLocaleString(), source: dataMode });
+  state.history.unshift({
+    symbol: label, qty: position.kind === "option" ? position.contracts : position.qty,
+    entry: position.kind === "option" ? position.premiumEntry : position.entry,
+    exit: current, gross: gross, fees: position.entryFee + exitFee, net: net, date: new Date().toLocaleString()
+  });
+  state.positions.splice(index, 1);
+  saveState(); recordEquity(); render();
+  if (askConfirm) alert("Simulated position closed.");
+}
+function renderPositions() {
+  const el = document.getElementById("openPositions");
+  el.innerHTML = "";
+  if (!state.positions.length) { el.textContent = "No open simulated positions yet."; return; }
+  state.positions.forEach(function (pos, i) {
+    const value = currentValue(pos);
+    const cost = pos.cost;
+    const unrealized = value - cost - pos.entryFee;
+    const div = document.createElement("div");
+    div.className = "trade";
+    const name = pos.kind === "option" ? pos.optionType + " " + pos.symbol + " @" + pos.strike : pos.symbol;
+    div.innerHTML = '<div class="row"><strong>' + name + '</strong>' +
+      '<strong class="' + (unrealized >= 0 ? "green" : "red") + '">' + money(unrealized) + '</strong></div>' +
+      '<div class="notice">Value ' + money(value) + ' · Cost ' + money(cost) + '</div>';
+    const btn = document.createElement("button");
+    btn.className = "secondary"; btn.textContent = "Close (simulated)";
+    btn.onclick = function () { closePositionByIndex(i, true); };
+    div.appendChild(btn);
+    el.appendChild(div);
+  });
+}
+
+/* ================= MARKETS + OPTIONS (SAMPLE ONLY) ================= */
+function setMarketFilter(filter, btn) {
+  marketFilter = filter;
+  document.querySelectorAll("#marketFilters .chip").forEach(function (c) { c.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+  renderMarkets(); renderOptions();
+}
+function renderMarkets() {
+  const el = document.getElementById("marketList");
+  el.innerHTML = "";
+  Object.keys(prices).forEach(function (symbol) {
+    if (marketFilter !== "all" && marketFilter !== "options" && categories[symbol] !== marketFilter) return;
+    if (marketFilter === "options") return;
+    // Phase 6: in live mode, show only live quotes (or an unavailable row) — never sample prices as live.
+    if (dataMode === "live") {
+      const quote = liveQuotes[symbol];
+      const divLive = document.createElement("div"); divLive.className = "asset row";
+      if (!quote) {
+        divLive.innerHTML = '<div><strong>' + symbol + '</strong><small>' + categoryLabels[categories[symbol]] + ' · Live price unavailable</small></div><div style="text-align:right"><strong>—</strong></div>';
+      } else {
+        divLive.innerHTML = '<div><strong>' + symbol + '</strong><small>' + categoryLabels[categories[symbol]] + ' · ' + (quote.source || "live") + ' · Vol ' + (quote.volume || 0).toLocaleString() + ' · ' + new Date(quote.timestamp).toLocaleTimeString() + '</small></div>' +
+          '<div style="text-align:right"><strong>' + fmtPrice(symbol, quote.price) + '</strong><small class="' + (quote.change >= 0 ? "green" : "red") + '">' + (quote.change >= 0 ? "+" : "") + quote.change.toFixed(2) + '%</small></div>';
+        divLive.onclick = function () { document.getElementById("chartAsset").value = symbol; onChartAssetChange(); showPage("home", document.querySelector(".tab")); };
+      }
+      el.appendChild(divLive); return;
+    }
+    const c = makeCandles(symbol);
+    const first = c[0].open, last = c[c.length - 1].close;
+    const pct = (last - first) / first * 100;
+    const div = document.createElement("div");
+    div.className = "asset row";
+    div.innerHTML = '<div><strong>' + symbol + '</strong><small>' + categoryLabels[categories[symbol]] + ' · Illustrative price · Vol (sample) ' + (c[c.length - 1].volume || 0).toLocaleString() + '</small></div>' +
+      '<div style="text-align:right"><strong>' + fmtPrice(symbol, last) + '</strong>' +
+      '<small class="' + (pct >= 0 ? "green" : "red") + '">' + (pct >= 0 ? "+" : "") + pct.toFixed(2) + '%</small></div>';
+    div.onclick = function () {
+      document.getElementById("chartAsset").value = symbol;
+      drawChart();
+      showPage("home", document.querySelector(".tab"));
+    };
+    el.appendChild(div);
+  });
+  document.getElementById("optionsSection").style.display = (marketFilter === "all" || marketFilter === "options") ? "block" : "none";
+}
+function sampleExpiries() {
+  const out = [];
+  const d = new Date();
+  for (let k = 0; k < 3; k++) {
+    const date = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7 * (k + 1));
+    out.push({ label: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " (sample)", days: 7 * (k + 1) });
+  }
+  return out;
+}
+function optionPremium(underlying, strike, type, days) {
+  const price = markPrice(underlying);
+  const intrinsic = type === "CALL" ? Math.max(0, price - strike) : Math.max(0, strike - price);
+  const timeValue = price * 0.02 * Math.sqrt(Math.max(1, days) / 30);
+  return Math.max(0.05, intrinsic + timeValue);
+}
+function renderOptions() {
+  const el = document.getElementById("optionsChain");
+  const underlying = document.getElementById("optUnderlying").value;
+  const price = markPrice(underlying);
+  const step = underlying === "TSLA" ? 10 : underlying === "NVDA" ? 5 : 5;
+  const base = Math.round(price / step) * step;
+  const strikes = [base - step, base, base + step];
+  const expiry = sampleExpiries()[0];
+  let html = '<p class="notice">Underlying sample price: ' + fmtPrice(underlying, price) + ' · Expiry: ' + expiry.label + '</p>';
+  html += '<table class="opt-table"><tr><th>Strike</th><th>Call</th><th>Put</th><th></th></tr>';
+  strikes.forEach(function (strike) {
+    const call = optionPremium(underlying, strike, "CALL", expiry.days);
+    const put = optionPremium(underlying, strike, "PUT", expiry.days);
+    html += '<tr><td>' + strike + '</td><td>' + money(call) + '</td><td>' + money(put) + '</td>' +
+      '<td><button class="secondary" onclick="tradeOption(\'CALL\',' + strike + ',' + expiry.days + ')">Buy Call</button> ' +
+      '<button class="secondary" onclick="tradeOption(\'PUT\',' + strike + ',' + expiry.days + ')">Buy Put</button></td></tr>';
+  });
+  html += '</table><p class="notice">Premiums are sample calculations (intrinsic value + illustrative time value), not live option quotes. One contract = 100 shares in this simulator.</p>';
+  el.innerHTML = html;
+}
+function tradeOption(type, strike, days) {
+  const underlying = document.getElementById("optUnderlying").value;
+  const amount = Number(document.getElementById("optAmount").value);
+  let premium;
+  if (dataMode === "live") {
+    const live = getTradingPrice(underlying);
+    if (!live.fresh) { alert("ORDER REJECTED — " + live.reason + "\n\nSwitch to Simulated mode, or refresh live data and try again. No order was placed."); return; }
+    const intrinsic = type === "CALL" ? Math.max(0, live.price - strike) : Math.max(0, strike - live.price);
+    premium = Math.max(0.05, intrinsic + live.price * 0.02 * Math.sqrt(Math.max(1, days) / 30));
+  } else {
+    premium = optionPremium(underlying, strike, type, days);
+  }
+  if (!Number.isFinite(amount) || amount <= 0) { alert("Enter a valid dollar amount."); return; }
+  const contracts = amount / (premium * 100);
+  const fee = amount * FEE_RATE;
+  const total = amount + fee;
+  if (total > buyingPower()) { alert("Not enough simulated buying power, including the trading fee and cash reserved for open limit-buy orders. Available buying power: " + money(buyingPower())); return; }
+  const optWarnings = riskWarningText(amount);
+  if (!confirm("SIMULATION ONLY\n\nBuy " + type + " " + underlying + " @" + strike + " for " + money(amount) + " plus a " + money(fee) + " fee?" + (optWarnings ? "\n\nRISK WARNING:\n" + optWarnings : ""))) return;
+  state.cash -= total;
+  state.positions.push({ id: Date.now(), kind: "option", symbol: underlying, optionType: type, strike: strike, expiryDays: days, premiumEntry: premium, contracts: contracts, cost: amount, entryFee: fee });
+  state.transactions.unshift({ type: "BUY", symbol: type + " " + underlying + " @" + strike, qty: contracts, price: premium, amount: amount, fee: fee, net: null, date: new Date().toLocaleString(), source: dataMode });
+  saveState(); recordEquity(); render(); alert("Simulated option position opened. No real order was sent.");
+}
+
+
+/* ================= PORTFOLIO PAGE ================= */
+function recordEquity() {
+  const eq = portfolio().equity;
+  const last = state.equityHistory[state.equityHistory.length - 1];
+  if (!last || Math.abs(last.equity - eq) > 0.005) {
+    state.equityHistory.push({ t: Date.now(), equity: eq });
+    if (state.equityHistory.length > 500) state.equityHistory.shift();
+    saveState();
+  }
+}
+function groupedInvestments() {
+  const map = {};
+  state.positions.forEach(function (pos, idx) {
+    const key = pos.kind === "option" ? ("option|" + pos.symbol + "|" + pos.optionType + "|" + pos.strike) : ("stock|" + pos.symbol);
+    if (!map[key]) map[key] = { key: key, kind: pos.kind, symbol: pos.symbol, optionType: pos.optionType, strike: pos.strike, qty: 0, cost: 0, entryFee: 0, indices: [] };
+    const g = map[key];
+    g.indices.push(idx);
+    if (pos.kind === "option") { g.qty += pos.contracts; } else { g.qty += pos.qty; }
+    g.cost += pos.cost; g.entryFee += pos.entryFee;
+  });
+  Object.keys(map).forEach(function (k) {
+    const g = map[k];
+    g.avgPrice = g.qty > 0 ? g.cost / (g.kind === "option" ? g.qty * 100 : g.qty) : 0;
+    // For options, cost is premium total, so avg premium = cost / (contracts*100) — handled above via avgPrice for display as premium.
+    if (g.kind === "option") g.avgPrice = g.cost / (g.qty * 100);
+    // Phase 4 fix: the old code valued every grouped option at a fixed 7-day expiry,
+    // so a 21-day option showed about $3 less than the portfolio total. Sum each
+    // position at its own expiry instead, so My Investments matches Home equity.
+    if (g.kind === "option") {
+      g.value = g.indices.reduce(function (sum, idx) { return sum + currentValue(state.positions[idx]); }, 0);
+      g.currentPrice = g.qty > 0 ? g.value / (g.qty * 100) : 0;
+    } else {
+      g.currentPrice = markPrice(g.symbol);
+      g.value = g.qty * markPrice(g.symbol);
+    }
+    g.unrealized = g.value - g.cost - g.entryFee;
+  });
+  return Object.keys(map).map(function (k) { return map[k]; });
+}
+function setPortfolioRange(range, btn) {
+  portfolioRange = range;
+  document.querySelectorAll("#portfolioRanges .range-btn").forEach(function (b) { b.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+  drawPortfolioChart();
+}
+function filteredEquityHistory() {
+  const now = Date.now();
+  const days = { "1D": 1, "1W": 7, "1M": 30, "3M": 90, "1Y": 365, "ALL": Infinity }[portfolioRange] || Infinity;
+  const pts = state.equityHistory.filter(function (pt) { return now - pt.t < days * 86400000; });
+  if (pts.length >= 2) return pts;
+  // Phase 4 fix: if a range contains fewer than 2 snapshots (e.g. 1D on an older
+  // account), show the account's real snapshots instead of a invented $300 line.
+  if (state.equityHistory.length >= 2) return state.equityHistory;
+  if (pts.length === 1) return [pts[0], { t: now, equity: portfolio().equity }];
+  if (state.equityHistory.length === 1) return [state.equityHistory[0], { t: now, equity: portfolio().equity }];
+  return [{ t: now - 86400000, equity: STARTING_CASH }, { t: now, equity: portfolio().equity }];
+}
+function drawPortfolioChart() {
+  const canvas = document.getElementById("portfolioChart");
+  if (!canvas) return;
+  const box = canvas.parentElement;
+  if (!box || box.clientWidth === 0) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, box.clientWidth * dpr);
+  canvas.height = Math.max(1, box.clientHeight * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = box.clientWidth, h = box.clientHeight;
+  ctx.clearRect(0, 0, w, h);
+  const pts = filteredEquityHistory();
+  const vals = pts.map(function (p) { return p.equity; });
+  const max = Math.max.apply(null, vals) * 1.02;
+  const min = Math.min.apply(null, vals) * 0.98;
+  const pad = 16, chartH = h - 2 * pad;
+  const x = function (i) { return pad + i / Math.max(1, pts.length - 1) * (w - 2 * pad); };
+  const y = function (v) { return pad + (max - v) / (max - min || 1) * chartH; };
+  ctx.strokeStyle = "#30243c"; ctx.fillStyle = "#958ba4"; ctx.font = "10px sans-serif";
+  for (let i = 0; i < 4; i++) {
+    const yy = pad + i * chartH / 3;
+    ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(w, yy); ctx.stroke();
+    ctx.fillText(money(max - (max - min) * i / 3), 6, yy - 2);
+  }
+  ctx.strokeStyle = "#a855f7"; ctx.lineWidth = 2; ctx.beginPath();
+  pts.forEach(function (pt, i) { if (i === 0) ctx.moveTo(x(i), y(pt.equity)); else ctx.lineTo(x(i), y(pt.equity)); });
+  ctx.stroke(); ctx.lineWidth = 1;
+  const lastPt = pts[pts.length - 1];
+  ctx.fillStyle = "#a855f7";
+  ctx.beginPath(); ctx.arc(x(pts.length - 1), y(lastPt.equity), 4, 0, Math.PI * 2); ctx.fill();
+  canvas._pts = pts; canvas._x = x; canvas._y = y;
+}
+function renderPortfolio() {
+  const p = portfolio();
+  const el = function (id) { return document.getElementById(id); };
+  if (el("portfolioEquity")) el("portfolioEquity").textContent = money(p.equity);
+  if (el("portfolioPL")) { el("portfolioPL").textContent = (p.pl >= 0 ? "+" : "") + money(p.pl) + " (" + (p.pl / STARTING_CASH * 100).toFixed(2) + "%)"; el("portfolioPL").className = p.pl >= 0 ? "profit" : "red"; }
+  if (el("portfolioCash")) el("portfolioCash").textContent = money(state.cash);
+  if (el("portfolioInvested")) el("portfolioInvested").textContent = money(p.marketValue);
+  if (el("portfolioTotalPL")) el("portfolioTotalPL").textContent = money(p.pl);
+  if (el("portfolioReturn")) el("portfolioReturn").textContent = (p.pl / STARTING_CASH * 100).toFixed(2) + "%";
+  const wins = state.history.filter(function (t) { return t.net > 0; }).length;
+  const losses = state.history.filter(function (t) { return t.net < 0; }).length;
+  const realized = state.history.reduce(function (s, t) { return s + t.net; }, 0);
+  const fees = state.history.reduce(function (s, t) { return s + t.fees; }, 0) + state.positions.reduce(function (s, pos) { return s + pos.entryFee; }, 0);
+  if (el("pfWinRate")) el("pfWinRate").textContent = state.history.length ? Math.round(wins / state.history.length * 100) + "%" : "0%";
+  if (el("pfCompleted")) el("pfCompleted").textContent = state.history.length;
+  if (el("pfRealized")) el("pfRealized").textContent = money(realized);
+  if (el("pfFees")) el("pfFees").textContent = money(fees);
+  const pfWinTrades = state.history.filter(function (t) { return t.net > 0; });
+  const pfLossTrades = state.history.filter(function (t) { return t.net < 0; });
+  if (el("pfAvgWin")) el("pfAvgWin").textContent = money(pfWinTrades.length ? pfWinTrades.reduce(function (a, t) { return a + t.net; }, 0) / pfWinTrades.length : 0);
+  if (el("pfAvgLoss")) el("pfAvgLoss").textContent = money(pfLossTrades.length ? pfLossTrades.reduce(function (a, t) { return a + t.net; }, 0) / pfLossTrades.length : 0);
+  if (el("pfProfitFactor")) { const gw = pfWinTrades.reduce(function (a, t) { return a + t.net; }, 0); const gl = Math.abs(pfLossTrades.reduce(function (a, t) { return a + t.net; }, 0)); el("pfProfitFactor").textContent = gl > 0 ? (gw / gl).toFixed(2) : "—"; }
+  if (el("pfBuyingPower")) el("pfBuyingPower").textContent = money(buyingPower());
+  renderInvestments();
+  // Phase 4 fix: keep an open position detail in sync after a trade or market
+  // advance, instead of leaving stale prices on screen. A typed amount is kept.
+  if (selectedInvestmentKey) {
+    const detailEl = document.getElementById("positionDetail");
+    if (detailEl && detailEl.style.display !== "none") {
+      const typedAmount = document.getElementById("detailAmount") ? document.getElementById("detailAmount").value : null;
+      const stillOpen = groupedInvestments().some(function (x) { return x.key === selectedInvestmentKey; });
+      if (stillOpen) {
+        showPositionDetail(selectedInvestmentKey);
+        if (typedAmount !== null && document.getElementById("detailAmount")) document.getElementById("detailAmount").value = typedAmount;
+      } else {
+        detailEl.style.display = "none"; selectedInvestmentKey = null;
+      }
+    }
+  }
+  renderTransactions();
+  drawPortfolioChart();
+  const rangeNote = document.getElementById("portfolioRangeNote");
+  if (rangeNote) rangeNote.textContent = "Showing " + filteredEquityHistory().length + " simulated equity snapshot(s) for " + portfolioRange + ". Snapshots are recorded when simulated trades execute or the sample market advances — this is not a real historical market series.";
+}
+function renderInvestments() {
+  const el = document.getElementById("investmentsList");
+  if (!el) return;
+  el.innerHTML = "";
+  const groups = groupedInvestments();
+  if (!groups.length) { el.textContent = "No open simulated investments yet."; return; }
+  groups.forEach(function (g) {
+    const div = document.createElement("div");
+    div.className = "invest-item";
+    const name = g.kind === "option" ? g.optionType + " " + g.symbol + " @" + g.strike : g.symbol;
+    const qtyLabel = g.kind === "option" ? g.qty.toFixed(2) + " contracts" : g.qty.toFixed(6);
+    div.innerHTML = '<div class="row"><strong>' + name + '</strong>' +
+      '<strong class="' + (g.unrealized >= 0 ? "green" : "red") + '">' + money(g.unrealized) + '</strong></div>' +
+      '<div class="notice">Qty ' + qtyLabel + ' · Avg ' + money(g.avgPrice) + ' · Current ' + money(g.currentPrice) + ' · Value ' + money(g.value) + '</div>';
+    div.onclick = function () { showPositionDetail(g.key); };
+    el.appendChild(div);
+  });
+}
+function showPositionDetail(key) {
+  selectedInvestmentKey = key;
+  const g = groupedInvestments().find(function (x) { return x.key === key; });
+  const el = document.getElementById("positionDetail");
+  if (!g || !el) return;
+  const name = g.kind === "option" ? g.optionType + " " + g.symbol + " @" + g.strike : g.symbol;
+  const qtyLabel = g.kind === "option" ? g.qty.toFixed(2) + " contracts" : g.qty.toFixed(6);
+  el.style.display = "block";
+  el.innerHTML = '<div class="label">POSITION DETAIL — SIMULATION ONLY</div>' +
+    '<h2 style="margin-top:8px">' + name + '</h2>' +
+    '<div class="notice">Quantity: ' + qtyLabel + '<br>Average purchase price: ' + money(g.avgPrice) +
+    '<br>Current simulated price: ' + money(g.currentPrice) + '<br>Cost: ' + money(g.cost) +
+    '<br>Current value: ' + money(g.value) + '<br>Unrealized P/L: ' + money(g.unrealized) +
+    '<br>Fees paid on entry: ' + money(g.entryFee) + '<br><small>Sample data only. No real order is placed.</small></div>' +
+    '<label class="label" for="detailAmount">Dollar amount for Buy</label>' +
+    '<input id="detailAmount" type="number" min="1" step="1" value="25">' +
+    '<div class="trade-buttons">' +
+    '<button class="primary buy" onclick="buyFromDetail()">BUY MORE</button>' +
+    '<button class="primary sell" onclick="closeGroupedPosition()">SELL / CLOSE</button></div>';
+}
+function buyFromDetail() {
+  const g = groupedInvestments().find(function (x) { return x.key === selectedInvestmentKey; });
+  if (!g) return;
+  if (g.kind === "option") {
+    document.getElementById("optUnderlying").value = g.symbol;
+    document.getElementById("optAmount").value = document.getElementById("detailAmount").value;
+    tradeOption(g.optionType, g.strike, 7);
+  } else {
+    document.getElementById("tradeAsset").value = g.symbol;
+    document.getElementById("amount").value = document.getElementById("detailAmount").value;
+    trade("BUY");
+  }
+  showPositionDetail(selectedInvestmentKey);
+}
+function closeGroupedPosition() {
+  const g = groupedInvestments().find(function (x) { return x.key === selectedInvestmentKey; });
+  if (!g) return;
+  if (!confirm("SIMULATION ONLY\n\nClose all " + g.symbol + " positions in this investment?")) return;
+  // Close in reverse index order so splicing does not shift earlier indices.
+  const indices = g.indices.slice().sort(function (a, b) { return b - a; });
+  indices.forEach(function (idx) { closePositionByIndex(idx, false); });
+  document.getElementById("positionDetail").style.display = "none";
+  selectedInvestmentKey = null;
+}
+function renderTransactions() {
+  const el = document.getElementById("transactionList");
+  if (!el) return;
+  el.innerHTML = "";
+  const txs = state.transactions && state.transactions.length ? state.transactions : state.history.map(function (t) {
+    return { type: "SELL", symbol: t.symbol, qty: t.qty, price: t.exit, amount: t.exit * t.qty, fee: t.fees, net: t.net, date: t.date };
+  });
+  if (!txs.length) { el.textContent = "No simulated transactions yet."; return; }
+  txs.forEach(function (tx) {
+    const div = document.createElement("div");
+    div.className = "trade";
+    div.innerHTML = '<div class="row"><strong>' + tx.type + ' ' + tx.symbol + '</strong>' +
+      '<strong>' + money(tx.amount) + '</strong></div>' +
+      '<div class="notice">Price ' + (Number(tx.price) || 0).toFixed(4) + ' · Fee ' + money(Number(tx.fee) || 0) + (tx.source === "live" ? ' · Live-quote paper fill (simulated trade, not a real execution)' : ' · Simulated fill') +
+      (tx.net !== null && tx.net !== undefined ? ' · Net ' + money(tx.net) : '') + '<br>' + tx.date + '</div>';
+    el.appendChild(div);
+  });
+}
+
+/* ================= HISTORY / JOURNAL ================= */
+function renderHistory() {
+  const el = document.getElementById("historyList");
+  el.innerHTML = "";
+  if (!state.history.length) { el.textContent = "No closed simulated trades yet."; return; }
+  state.history.forEach(function (t) {
+    const div = document.createElement("div");
+    div.className = "trade";
+    div.innerHTML = '<div class="row"><strong>' + t.symbol + '</strong>' +
+      '<strong class="' + (t.net >= 0 ? "green" : "red") + '">' + money(t.net) + '</strong></div>' +
+      '<div class="notice">Entry ' + (Number(t.entry) || 0).toFixed(4) + ' → Exit ' + (Number(t.exit) || 0).toFixed(4) +
+      ' · Fees ' + money(t.fees) + '<br>' + t.date + '</div>';
+    el.appendChild(div);
+  });
+}
+function saveJournalNote() {
+  try { localStorage.setItem(NOTE_KEY, document.getElementById("journalNote").value); } catch (e) {}
+  document.getElementById("savedNote").textContent = "Note saved on this device.";
+}
+function resetAccount() {
+  if (!confirm("Reset all simulated cash, positions, history, transactions, and the journal note?")) return;
+  state = { cash: STARTING_CASH, positions: [], history: [], transactions: [], equityHistory: [], orders: [], orderHistory: [] };
+  try { localStorage.removeItem(NOTE_KEY); } catch (e) {}
+  const noteEl = document.getElementById("journalNote"); if (noteEl) noteEl.value = "";
+  const savedEl = document.getElementById("savedNote"); if (savedEl) savedEl.textContent = "Note cleared with reset.";
+  saveState(); recordEquity(); render();
+}
+
+/* ================= SCANNER (RULE-BASED, EDUCATIONAL ONLY) ================= */
+function scanMarket() {
+ const tf=document.getElementById('scannerTimeframe').value;
+ // Phase 6: in live mode, do not silently run a sample scan. If no live candles are available, explain and offer an explicitly labelled simulated scan.
+ if (dataMode === "live" && !forceSimulatedScan) {
+   const hasLive = Object.keys(prices).some(function (sym) { return liveCandles[sym] && liveCandles[sym].length; });
+   if (!hasLive) {
+     document.getElementById('signalTitle').textContent = 'Live scanner unavailable';
+     document.getElementById('signalText').textContent = 'No live candles have been fetched yet. Refresh live data first, or run a clearly labelled simulated scan instead — sample prices will never be presented as live data.';
+     const list = document.getElementById('scanResults'); list.replaceChildren();
+     const btn = document.createElement('button'); btn.className = 'primary'; btn.textContent = 'Run simulated scan (sample data, clearly labelled)';
+     btn.onclick = function () { runSimulatedScan(); };
+     list.appendChild(btn); return;
+   }
+ }
+ const results=Object.keys(prices).map(symbol=>{
+  const cs=scanCandles(symbol,tf), values=cs.map(c=>c.close);
+  const last=values[values.length-1], prior=values[Math.max(0,values.length-2)];
+  // Phase 4 fix: RSI needs 15+ candles and MACD needs 26+. With fewer aggregated
+  // candles (e.g. 1D gives only 9), the old code treated RSI 50 / MACD 0 as a
+  // directional signal. Now insufficient data is neutral, and is labelled as such.
+  const hasRsi=values.length>14, hasMacd=values.length>=26;
+  const rsi=hasRsi?rsiValue(values):null, macd=hasMacd?macdValue(values):null, ma=smaAt(values,values.length-1,Math.min(10,values.length));
+  let score=(last>ma?1:-1)+(hasRsi?(rsi>55?1:rsi<45?-1:0):0)+(hasMacd?(macd>0?1:-1):0);
+  const signal=score>=2?'BUY':score<=-2?'SELL':'HOLD';
+  const reasons=[last>ma?'Above short moving average':'Below short moving average',
+    hasRsi?('RSI '+rsi.toFixed(1)+(rsi>70?' (overbought zone)':rsi<30?' (oversold zone)':'')):'RSI: not enough sample candles (need 15+)',
+    hasMacd?('MACD '+(macd>=0?'positive':'negative')):'MACD: not enough sample candles (need 26+)'];
+  const volVals=values; const vMean=volVals.reduce((a,b)=>a+b,0)/volVals.length; const vol=Math.sqrt(volVals.reduce((a,b)=>a+(b-vMean)*(b-vMean),0)/volVals.length)/vMean*100;
+  const trendStrength=Math.abs(score)>=3||Math.abs((last-prior)/prior*100)>=2?'Strong':(Math.abs(score)>=2||Math.abs((last-prior)/prior*100)>=1?'Moderate':'Weak');
+  const riskLevel=vol>3?'High':(vol>1.5?'Medium':'Low');
+  return {symbol,signal,reasons,rsi,macd,ma,change:(last-prior)/prior*100,score,trendStrength:trendStrength,riskLevel:riskLevel,volatility:vol};
+ });
+ results.sort((a,b)=>(Math.abs(b.score)-Math.abs(a.score))||(Math.abs(b.change)-Math.abs(a.change)));
+ const first=results[0];
+ document.getElementById('signalTitle').textContent=first.symbol+' · '+first.signal+' (RULE-BASED)';
+ document.getElementById('signalText').textContent=first.reasons.join(' · ')+'. Sample prices only; signals are educational and can be wrong.';
+ const list=document.getElementById('scanResults');list.replaceChildren();
+ results.forEach(r=>{const box=document.createElement('div');box.className='asset';const heading=document.createElement('strong');heading.textContent=r.symbol+' — '+r.signal;const details=document.createElement('p');details.className='notice';details.textContent=r.reasons.join(' · ')+' · Change '+r.change.toFixed(2)+'% · Trend: '+r.trendStrength+' · Risk: '+r.riskLevel+' · Volatility (sample) '+(r.volatility||0).toFixed(2)+'% · '+tf+' illustrative aggregation. Sample data only. No live data, AI, or forecast.';const btn=document.createElement('button');btn.className='secondary';btn.textContent='Chart this (sample)';btn.onclick=function(){chartScannerAsset(r.symbol);};box.append(heading,details,btn);list.append(box);});
+}
+
+function chartScannerAsset(symbol) {
+  document.getElementById("chartAsset").value = symbol;
+  drawChart();
+  showPage("home", document.querySelector(".tab"));
+}
+
+/* ================= PHASE 5: DATA, RISK, ORDERS, AI ASSISTANT ================= */
+/* Live data is NOT connected. This section is the honest support layer: the app
+   runs on simulated data, explains what a real connection would require, and
+   never fabricates a live, delayed, or real quote. No API key is collected or
+   stored anywhere in this frontend. See LIVE_DATA_SETUP.md for the secure
+   backend-proxy setup that would be required before live mode could be enabled. */
+function setDataModeSimulated() {
+  dataMode = "simulated";
+  try { localStorage.setItem(DATA_MODE_KEY, "simulated"); } catch (e) {}
+  updateDataStatus();
+  document.getElementById("liveSetup").style.display = "none";
+  renderMarkets(); drawChart();
+}
+function showLiveDataSetup() {
+  const el = document.getElementById("liveSetup");
+  el.style.display = "block";
+  el.innerHTML = "<strong>Live data is not connected — and no key is asked for here.</strong><br>" +
+    "To connect live data securely you would need: (1) a market-data provider account, " +
+    "(2) a small backend proxy that holds the API key server-side and forwards only public quotes, " +
+    "(3) this app pointed at that proxy, never at a key in the page. " +
+    "Until that backend exists and is tested, the app stays in simulated mode and every price stays labelled sample. " +
+    "Full steps are in BACKEND_SETUP.md and AI_SETUP.md, and the backend code is in server/proxy.js (key in server environment only). Do not paste an API key into this app, a chat, or a file in this project.";
+}
+function tryLiveData() {
+  alert("Live data test: NOT CONNECTED.\n\nNo live quote was fetched, because no market-data provider or backend proxy is configured. The app is still running on simulated sample data. See LIVE_DATA_SETUP.md for what would be needed.");
+}
+function getLiveQuote(symbol) { return null; /* Stub only: returns null until a tested backend proxy is configured. */ }
+
+/* --- Advanced risk settings (device-only) --- */
+function loadRiskSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(RISK_SETTINGS_KEY));
+    if (saved && typeof saved === "object") return { maxExposurePct: Number(saved.maxExposurePct) || 50, dailyLossPct: Number(saved.dailyLossPct) || 2 };
+  } catch (e) {}
+  return { maxExposurePct: 50, dailyLossPct: 2 };
+}
+function saveRiskSettings() {
+  const maxExposurePct = Math.min(100, Math.max(1, Number(document.getElementById("maxExposurePct").value) || 50));
+  const dailyLossPct = Math.min(100, Math.max(0.1, Number(document.getElementById("dailyLossPct").value) || 2));
+  try { localStorage.setItem(RISK_SETTINGS_KEY, JSON.stringify({ maxExposurePct: maxExposurePct, dailyLossPct: dailyLossPct })); } catch (e) {}
+  document.getElementById("riskSettingsResult").textContent = "Risk settings saved on this device: max exposure " + maxExposurePct + "% per trade, daily simulated loss limit " + dailyLossPct + "% of the $300 start (" + money(STARTING_CASH * dailyLossPct / 100) + ").";
+  renderRiskWarnings();
+}
+function todaysRealized() {
+  const today = new Date().toLocaleDateString();
+  return state.history.filter(function (t) { return t.date && t.date.indexOf(today) === 0; }).reduce(function (sum, t) { return sum + (Number(t.net) || 0); }, 0);
+}
+function riskWarningText(amount) {
+  const settings = loadRiskSettings();
+  const warnings = [];
+  const equity = portfolio().equity;
+  const maxDollar = equity * settings.maxExposurePct / 100;
+  if (amount > maxDollar) warnings.push("This simulated trade (" + money(amount) + ") exceeds your max exposure of " + settings.maxExposurePct + "% of equity (" + money(maxDollar) + ").");
+  const dailyLimit = STARTING_CASH * settings.dailyLossPct / 100;
+  const today = todaysRealized();
+  if (today < -dailyLimit) warnings.push("Today's simulated realized P/L (" + money(today) + ") already exceeds your daily loss limit of -" + money(dailyLimit) + ". Consider stopping simulated trading for today.");
+  const exposure = equity > 0 ? portfolio().marketValue / equity * 100 : 0;
+  if (exposure > 90) warnings.push("Current simulated portfolio exposure is already " + exposure.toFixed(1) + "% of equity.");
+  return warnings.join(" ");
+}
+function renderRiskWarnings() {
+  const el = document.getElementById("riskWarnings");
+  if (!el) return;
+  const settings = loadRiskSettings();
+  const equity = portfolio().equity;
+  const exposure = equity > 0 ? portfolio().marketValue / equity * 100 : 0;
+  const dailyLimit = STARTING_CASH * settings.dailyLossPct / 100;
+  const today = todaysRealized();
+  el.textContent = "Current exposure: " + exposure.toFixed(1) + "% of equity · Max per trade: " + settings.maxExposurePct + "% (" + money(equity * settings.maxExposurePct / 100) + ") · " +
+    "Today's simulated realized P/L: " + money(today) + " · Daily loss limit: -" + money(dailyLimit) +
+    (today < -dailyLimit ? " — LIMIT EXCEEDED (warning only, trades are not blocked)." : "");
+  const maxEl = document.getElementById("maxExposurePct"); if (maxEl && document.activeElement !== maxEl) maxEl.value = settings.maxExposurePct;
+  const dailyEl = document.getElementById("dailyLossPct"); if (dailyEl && document.activeElement !== dailyEl) dailyEl.value = settings.dailyLossPct;
+}
+
+/* --- Buying power and professional paper orders --- */
+function reservedForOrders() {
+  return (state.orders || []).filter(function (o) { return o.type === "LIMIT_BUY"; }).reduce(function (sum, o) { return sum + (Number(o.amount) || 0) * (1 + FEE_RATE); }, 0);
+}
+function buyingPower() { return Math.max(0, state.cash - reservedForOrders()); }
+function updateOrderForm() {
+  const type = document.getElementById("orderType").value;
+  const wrap = document.getElementById("orderAmountWrap");
+  const note = document.getElementById("orderFormNote");
+  if (type === "LIMIT_BUY") { wrap.style.display = "block"; note.textContent = "Limit Buy: fills on the next sample-market advance if the sample price is at or below your trigger. Cash for this order is reserved from buying power until it fills or is cancelled."; }
+  else if (type === "LIMIT_SELL") { wrap.style.display = "none"; note.textContent = "Limit Sell: closes all stock positions for the asset on the next sample-market advance if the sample price is at or above your trigger."; }
+  else if (type === "STOP_LOSS") { wrap.style.display = "none"; note.textContent = "Stop-Loss: closes all stock positions for the asset on the next sample-market advance if the sample price is at or below your trigger."; }
+  else { wrap.style.display = "none"; note.textContent = "Take-Profit: closes all stock positions for the asset on the next sample-market advance if the sample price is at or above your trigger."; }
+}
+function placeOrder() {
+  const type = document.getElementById("orderType").value;
+  const symbol = document.getElementById("orderAsset").value;
+  const amount = Number(document.getElementById("orderAmount").value);
+  const trigger = Number(document.getElementById("orderTrigger").value);
+  if (!Number.isFinite(trigger) || trigger <= 0) { alert("Enter a valid trigger price."); return; }
+  const currentPriceInfo = getTradingPrice(symbol);
+  if (!currentPriceInfo.fresh) { alert("ORDER REJECTED — " + currentPriceInfo.reason + "\n\nNo order was placed."); return; }
+  const currentPrice = currentPriceInfo.price;
+  if (type === "LIMIT_BUY" && trigger >= currentPrice) { alert("ORDER REJECTED — Limit Buy trigger (" + trigger + ") must be below the current price (" + currentPrice.toFixed(4) + "), otherwise it would fill immediately. Use a market order for an immediate simulated buy, or set a lower trigger."); return; }
+  if (type === "LIMIT_SELL" && trigger <= currentPrice) { alert("ORDER REJECTED — Limit Sell trigger (" + trigger + ") must be above the current price (" + currentPrice.toFixed(4) + ")."); return; }
+  if (type === "STOP_LOSS" && trigger >= currentPrice) { alert("ORDER REJECTED — Stop-Loss trigger (" + trigger + ") must be below the current price (" + currentPrice.toFixed(4) + ") for a long position, otherwise it would trigger immediately."); return; }
+  if (type === "TAKE_PROFIT" && trigger <= currentPrice) { alert("ORDER REJECTED — Take-Profit trigger (" + trigger + ") must be above the current price (" + currentPrice.toFixed(4) + ")."); return; }
+  if (type === "LIMIT_BUY") {
+    if (!Number.isFinite(amount) || amount <= 0) { alert("Enter a valid dollar amount for a limit buy."); return; }
+    if (amount * (1 + FEE_RATE) > buyingPower()) { alert("Not enough simulated buying power for this limit buy, including the fee. Available buying power: " + money(buyingPower())); return; }
+  } else {
+    const hasPosition = state.positions.some(function (pos) { return pos.symbol === symbol && pos.kind !== "option"; });
+    if (!hasPosition) { alert("No open stock position for " + symbol + " to attach this order to. Open a simulated position first."); return; }
+  }
+  if (!confirm("SIMULATION ONLY\n\nPlace a " + type.replace("_", " ") + " order for " + symbol + " at trigger " + trigger + (type === "LIMIT_BUY" ? " for " + money(amount) + " (plus fee, reserved from buying power)" : " (closes stock positions for this asset when triggered)") + "?\nThis order only fills when the sample market advances. No real order is sent.")) return;
+  state.orders.push({ id: Date.now(), type: type, symbol: symbol, amount: type === "LIMIT_BUY" ? amount : 0, trigger: trigger, date: new Date().toLocaleString() });
+  saveState(); render();
+  alert("Simulated order placed and open. It will be checked on the next sample-market advance (Next Candle).");
+}
+function cancelOrder(id) {
+  const idx = (state.orders || []).findIndex(function (o) { return o.id === id; });
+  if (idx < 0) return;
+  const order = state.orders[idx];
+  state.orders.splice(idx, 1);
+  state.orderHistory.unshift({ type: order.type, symbol: order.symbol, amount: order.amount || 0, trigger: order.trigger, price: null, fee: 0, net: null, status: "cancelled", date: new Date().toLocaleString() });
+  saveState(); render();
+}
+function closeAllStockPositions(symbol) {
+  // Returns { proceeds, net } for the positions closed, without per-position confirms.
+  let proceeds = 0, net = 0;
+  const indices = [];
+  state.positions.forEach(function (pos, i) { if (pos.symbol === symbol && pos.kind !== "option") indices.push(i); });
+  indices.slice().sort(function (a, b) { return b - a; }).forEach(function (i) {
+    const pos = state.positions[i];
+    const current = markPrice(symbol);
+    const p = current * pos.qty;
+    const exitFee = p * FEE_RATE;
+    proceeds += p; net += (current - pos.entry) * pos.qty - pos.entryFee - exitFee;
+    closePositionByIndex(i, false);
+  });
+  return { proceeds: proceeds, net: net };
+}
+function checkOrders() {
+  if (!state.orders || !state.orders.length) return;
+  const pending = state.orders.slice();
+  pending.forEach(function (order) {
+    const orderPriceInfo = getTradingPrice(order.symbol);
+    if (dataMode === "live" && !orderPriceInfo.fresh) return;
+    const price = orderPriceInfo.price;
+    let shouldFill = false;
+    if (order.type === "LIMIT_BUY" && price <= order.trigger) shouldFill = true;
+    if (order.type === "LIMIT_SELL" && price >= order.trigger) shouldFill = true;
+    if (order.type === "STOP_LOSS" && price <= order.trigger) shouldFill = true;
+    if (order.type === "TAKE_PROFIT" && price >= order.trigger) shouldFill = true;
+    if (!shouldFill) return;
+    const idx = state.orders.findIndex(function (o) { return o.id === order.id; });
+    if (idx < 0) return;
+    state.orders.splice(idx, 1);
+    if (order.type === "LIMIT_BUY") {
+      const fee = order.amount * FEE_RATE;
+      const total = order.amount + fee;
+      if (total > state.cash) {
+        state.orderHistory.unshift({ type: order.type, symbol: order.symbol, amount: order.amount, trigger: order.trigger, price: price, fee: 0, net: null, status: "cancelled — insufficient cash at fill", date: new Date().toLocaleString() });
+        return;
+      }
+      state.cash -= total;
+      state.positions.push({ id: Date.now(), kind: "stock", symbol: order.symbol, qty: order.amount / price, entry: price, cost: order.amount, entryFee: fee });
+      state.transactions.unshift({ type: "BUY", symbol: order.symbol, qty: order.amount / price, price: price, amount: order.amount, fee: fee, net: null, date: new Date().toLocaleString(), source: dataMode });
+      state.orderHistory.unshift({ type: order.type, symbol: order.symbol, amount: order.amount, trigger: order.trigger, price: price, fee: fee, net: null, status: "filled", date: new Date().toLocaleString() });
+    } else {
+      const hasPosition = state.positions.some(function (pos) { return pos.symbol === order.symbol && pos.kind !== "option"; });
+      if (!hasPosition) {
+        state.orderHistory.unshift({ type: order.type, symbol: order.symbol, amount: 0, trigger: order.trigger, price: price, fee: 0, net: null, status: "cancelled — no position at trigger", date: new Date().toLocaleString() });
+        return;
+      }
+      const result = closeAllStockPositions(order.symbol);
+      state.orderHistory.unshift({ type: order.type, symbol: order.symbol, amount: result.proceeds, trigger: order.trigger, price: price, fee: 0, net: result.net, status: "filled", date: new Date().toLocaleString() });
+    }
+  });
+  saveState();
+}
+function renderOrders() {
+  const bp = document.getElementById("buyingPower");
+  if (bp) bp.textContent = money(buyingPower());
+  const openEl = document.getElementById("openOrders");
+  if (openEl) {
+    openEl.innerHTML = "";
+    if (!state.orders || !state.orders.length) { openEl.textContent = "No open simulated orders."; }
+    else state.orders.forEach(function (o) {
+      const div = document.createElement("div"); div.className = "order-item";
+      div.innerHTML = "<strong>" + o.type.replace("_", " ") + " " + o.symbol + "</strong> · Trigger " + o.trigger +
+        (o.type === "LIMIT_BUY" ? " · Amount " + money(o.amount) + " (reserved)" : " · Closes stock positions") + "<br><span class=\"notice\">" + o.date + " · Sample price now " + fmtPrice(o.symbol, markPrice(o.symbol)) + "</span>";
+      const btn = document.createElement("button"); btn.className = "secondary"; btn.textContent = "Cancel (simulated)"; btn.onclick = function () { cancelOrder(o.id); };
+      div.appendChild(btn); openEl.appendChild(div);
+    });
+  }
+  const histEl = document.getElementById("orderHistoryList");
+  if (histEl) {
+    histEl.innerHTML = "";
+    if (!state.orderHistory || !state.orderHistory.length) { histEl.textContent = "No simulated order history yet."; }
+    else state.orderHistory.forEach(function (o) {
+      const div = document.createElement("div"); div.className = "order-item";
+      div.innerHTML = "<strong>" + o.type.replace("_", " ") + " " + o.symbol + "</strong> · " + o.status +
+        " · Trigger " + o.trigger + (o.price !== null && o.price !== undefined ? " · Fill price " + o.price.toFixed(4) : "") +
+        (o.amount ? " · Amount " + money(o.amount) : "") + (o.net !== null && o.net !== undefined ? " · Net " + money(o.net) : "") +
+        "<br><span class=\"notice\">" + o.date + "</span>";
+      histEl.appendChild(div);
+    });
+  }
+}
+
+/* --- AI Assistant: transparent, rule-based scoring (not AI-generated) --- */
+function aiAnalysis(symbol, tf) {
+  const cs = scanCandles(symbol, tf);
+  const values = cs.map(function (c) { return c.close; });
+  const last = values[values.length - 1];
+  const prev = values[Math.max(0, values.length - 2)];
+  const change = (last - prev) / prev * 100;
+  const ma10 = smaAt(values, values.length - 1, Math.min(10, values.length));
+  const ema20 = values.length >= 2 ? emaSeries(values, 20)[values.length - 1] : last;
+  const hasRsi = values.length > 14, hasMacd = values.length >= 26;
+  const rsi = hasRsi ? rsiValue(values) : null;
+  const macd = hasMacd ? macdValue(values) : null;
+  let boll = null;
+  if (values.length >= 20) {
+    const seg = values.slice(values.length - 20);
+    const mean = seg.reduce(function (a, b) { return a + b; }, 0) / 20;
+    const sd = Math.sqrt(seg.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / 20);
+    boll = { mean: mean, upper: mean + 2 * sd, lower: mean - 2 * sd };
+  }
+  const vols = cs.map(function (c) { return c.volume || 0; });
+  const avgVol = vols.length ? vols.reduce(function (a, b) { return a + b; }, 0) / vols.length : 0;
+  const lastVol = vols[vols.length - 1] || 0;
+  const meanClose = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
+  const volatility = Math.sqrt(values.reduce(function (a, b) { return a + (b - meanClose) * (b - meanClose); }, 0) / values.length) / meanClose * 100;
+  const recentLow = Math.min.apply(null, cs.slice(-10).map(function (c) { return c.low; }));
+  const recentHigh = Math.max.apply(null, cs.slice(-10).map(function (c) { return c.high; }));
+  const components = [];
+  components.push({ name: "Trend vs SMA 10", score: last > ma10 ? 1 : -1, text: last > ma10 ? "Sample price is above its 10-period average (bullish tilt in this sample)." : "Sample price is below its 10-period average (bearish tilt in this sample)." });
+  components.push({ name: "Momentum (RSI)", score: !hasRsi ? 0 : (rsi > 55 ? 1 : (rsi < 45 ? -1 : 0)), text: !hasRsi ? "Not enough sample candles for RSI (need 15+) — scored neutral." : "RSI " + rsi.toFixed(1) + (rsi > 70 ? " — overbought zone, a reversal is a risk." : (rsi < 30 ? " — oversold zone, a bounce is possible but not guaranteed." : " — in the middle zone, no strong momentum signal.")) });
+  components.push({ name: "MACD", score: !hasMacd ? 0 : (macd > 0 ? 1 : -1), text: !hasMacd ? "Not enough sample candles for MACD (need 26+) — scored neutral." : "MACD is " + (macd >= 0 ? "positive" : "negative") + " in this sample." });
+  components.push({ name: "Bollinger position", score: !boll ? 0 : (last > boll.upper ? -1 : (last < boll.lower ? 1 : 0)), text: !boll ? "Not enough sample candles for Bollinger Bands (need 20+) — scored neutral." : (last > boll.upper ? "Sample price is above the upper band — stretched, pullback risk is higher." : (last < boll.lower ? "Sample price is below the lower band — stretched to the downside." : "Sample price is inside the bands — no band-extreme signal.")) });
+  components.push({ name: "Volume (sample)", score: avgVol > 0 ? (lastVol > avgVol ? 1 : -1) : 0, text: "Latest sample volume " + lastVol.toLocaleString() + " vs average " + Math.round(avgVol).toLocaleString() + ". Volume here is randomly generated sample data, not real traded volume." });
+  const total = components.reduce(function (a, c) { return a + c.score; }, 0);
+  const signal = total >= 3 ? "BUY" : (total <= -3 ? "SELL" : "HOLD");
+  const confidence = Math.round(Math.abs(total) / 5 * 100);
+  const trendStrength = Math.abs(total) >= 4 || Math.abs(change) >= 2 ? "Strong" : (Math.abs(total) >= 2 || Math.abs(change) >= 1 ? "Moderate" : "Weak");
+  const riskLevel = volatility > 3 || (rsi !== null && (rsi > 70 || rsi < 30)) ? "High" : (volatility > 1.5 ? "Medium" : "Low");
+  return { symbol: symbol, tf: tf, last: last, change: change, ma10: ma10, ema20: ema20, rsi: rsi, macd: macd, boll: boll, volatility: volatility, recentLow: recentLow, recentHigh: recentHigh, components: components, total: total, signal: signal, confidence: confidence, trendStrength: trendStrength, riskLevel: riskLevel };
+}
+function renderAiAssistant() {
+  const symbol = document.getElementById("aiAsset").value;
+  const tf = document.getElementById("aiTimeframe").value;
+  const a = aiAnalysis(symbol, tf);
+  const el = document.getElementById("aiDashboard");
+  const signalClass = a.signal === "BUY" ? "signal-buy" : (a.signal === "SELL" ? "signal-sell" : "signal-hold");
+  const settings = loadRiskSettings();
+  const suggestedRisk = money(portfolio().equity * 0.01);
+  el.innerHTML =
+    "<h2>" + symbol + " — <span class=\"" + signalClass + "\">" + a.signal + "</span></h2>" +
+    "<p class=\"notice\">Transparent score: " + a.total + " out of a possible +5 to -5 (" + a.components.filter(function (c) { return c.score > 0; }).length + " bullish, " + a.components.filter(function (c) { return c.score < 0; }).length + " bearish, " + a.components.filter(function (c) { return c.score === 0; }).length + " neutral). Confidence " + a.confidence + "% = |score| / 5. This is a rule count, not a probability and not a prediction.</p>" +
+    "<div class=\"grid\">" +
+    "<div class=\"card\"><div class=\"label\">SAMPLE PRICE</div><strong>" + fmtPrice(symbol, a.last) + "</strong></div>" +
+    "<div class=\"card\"><div class=\"label\">CHANGE (last candle)</div><strong>" + a.change.toFixed(2) + "%</strong></div>" +
+    "<div class=\"card\"><div class=\"label\">TREND STRENGTH</div><strong>" + a.trendStrength + "</strong></div>" +
+    "<div class=\"card\"><div class=\"label\">RISK LEVEL</div><strong>" + a.riskLevel + "</strong></div>" +
+    "<div class=\"card\"><div class=\"label\">VOLATILITY (sample)</div><strong>" + a.volatility.toFixed(2) + "%</strong></div>" +
+    "<div class=\"card\"><div class=\"label\">CONFIDENCE (rule count)</div><strong>" + a.confidence + "%</strong></div>" +
+    "</div>" +
+    "<h2>Market Trend Analysis</h2><p class=\"notice\">Sample price " + fmtPrice(symbol, a.last) + " vs SMA 10 " + fmtPrice(symbol, a.ma10) + " and EMA 20 " + fmtPrice(symbol, a.ema20) + ". Trend strength is " + a.trendStrength.toLowerCase() + " on this " + tf + " illustrative aggregation. A trend in sample data does not predict the next candle.</p>" +
+    "<h2>Technical Indicator Analysis</h2>" +
+    a.components.map(function (c) { return "<div class=\"trade\"><strong>" + c.name + " (" + (c.score > 0 ? "+" : "") + c.score + ")</strong><p class=\"notice\">" + c.text + "</p></div>"; }).join("") +
+    "<h2>Trading Opportunity Explanation</h2><p class=\"notice\">" + (a.signal === "BUY" ? "The rules lean bullish in this sample: more indicators score positive than negative. That is an educational observation, not a recommendation to buy." : (a.signal === "SELL" ? "The rules lean bearish in this sample: more indicators score negative than positive. That is an educational observation, not a recommendation to sell." : "The rules are mixed or neutral in this sample, so the assistant's output is HOLD — waiting is a valid simulated decision.")) + "</p>" +
+    "<h2>Bullish Scenario (educational, not a forecast)</h2><p class=\"notice\">If the sample price were to rise above the recent sample high of " + fmtPrice(symbol, a.recentHigh) + ", the trend component would strengthen. This scenario would still be sample data, and it could fail at any point.</p>" +
+    "<h2>Bearish Scenario (educational, not a forecast)</h2><p class=\"notice\">If the sample price were to fall below the recent sample low of " + fmtPrice(symbol, a.recentLow) + ", the trend component would weaken further. A falling sample price can keep falling, even from an oversold reading.</p>" +
+    "<h2>Risk Assessment</h2><p class=\"notice\">Risk level: " + a.riskLevel + ". Sample volatility is " + a.volatility.toFixed(2) + "%. " + (a.rsi !== null && a.rsi > 70 ? "RSI is in the overbought zone — chasing a rise here carries higher reversal risk. " : "") + (a.rsi !== null && a.rsi < 30 ? "RSI is in the oversold zone — a falling sample can still fall further. " : "") + "Signals in this app never promise profits, and a simulated win does not predict a real win.</p>" +
+    "<h2>Trading Strategy Suggestion (simulated only)</h2><p class=\"notice\">One disciplined simulated approach: risk no more than about 1% of equity per idea (about " + suggestedRisk + " at current equity), size the position with the Risk calculator, set a stop below the recent sample low for a long idea (" + fmtPrice(symbol, a.recentLow) + ") or above the recent sample high for a short idea, and respect your saved daily loss limit (" + settings.dailyLossPct + "%). Test the idea with a paper order first — market, limit, stop-loss, or take-profit — and review it in the Journal.</p>" +
+    "<p class=\"notice\">Engine: rule-based scoring of " + (dataMode === "live" ? "live candles (when fresh live candles were available)" : "sample candles") + ". No AI service is connected in this fallback, no broker was contacted, and a live-mode analysis that falls back to sample candles is labelled as such — it is never presented as live data.</p>";
+}
+
+
+/* ================= PHASE 6: LIVE DATA + REAL AI (STRUCTURE, NOT CONNECTED BY DEFAULT) ================= */
+/* Security rule, enforced in code: the frontend NEVER holds an API key. It only
+   holds a backend proxy URL (no key, no secret). Keys live only in the backend
+   server's environment variables (see server/proxy.js and BACKEND_SETUP.md).
+   Until a user deploys that backend with their own credentials and a live test
+   succeeds, dataMode stays "simulated" and AI stays "NOT CONNECTED". */
+const PROXY_URL_KEY = "rixo_proxy_url_v1";
+const DATA_MODE_KEY = "rixo_data_mode_v1";
+let dataMode = "simulated";
+try { const savedMode = localStorage.getItem(DATA_MODE_KEY); if (savedMode === "live" || savedMode === "simulated") dataMode = savedMode; } catch (e) {}
+let liveQuotes = {};   // symbol -> {price, change, volume, timestamp, source}
+let liveCandles = {};  // symbol -> [{open,high,low,close,volume}]
+let forceSimulatedScan = false;
+let lastLiveTest = null; // {timestamp, symbol, price} from the most recent successful proxy test, in-memory only
+function getProxyUrl() { try { return (localStorage.getItem(PROXY_URL_KEY) || "").trim(); } catch (e) { return ""; } }
+function saveProxyUrl() {
+  const url = document.getElementById("proxyUrl").value.trim();
+  if (!url) { alert("Enter a backend proxy URL, or leave live data disconnected and use simulated data."); return; }
+  if (!(url.startsWith("https://") || url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1"))) {
+    alert("Proxy URL rejected: it must start with https:// (or http://localhost for local testing). Do not use an http:// public URL, and never put an API key in the URL."); return;
+  }
+  if (/api[_-]?key|token=|secret/i.test(url)) { alert("Proxy URL rejected: it looks like it contains a key or token. Keys must stay server-side only — the URL must contain no credentials."); return; }
+  try { localStorage.setItem(PROXY_URL_KEY, url); } catch (e) {}
+  document.getElementById("liveStatus").textContent = "Proxy URL saved (URL only, no key). Live data is still NOT CONNECTED until a test succeeds — tap Test Live Connection.";
+  alert("Proxy URL saved. This is only a URL — no API key was entered or stored.");
+}
+async function fetchWithTimeout(url, options, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, ms || 8000);
+  try { return await fetch(url, Object.assign({}, options || {}, { signal: controller.signal })); }
+  finally { clearTimeout(timer); }
+}
+async function fetchLiveQuoteFromProxy(symbol) {
+  const proxy = getProxyUrl();
+  if (!proxy) return null;
+  const res = await fetchWithTimeout(proxy.replace(/\/$/, "") + "/api/quote?symbol=" + encodeURIComponent(symbol), {}, 8000);
+  if (!res.ok) throw new Error("Proxy returned HTTP " + res.status);
+  const data = await res.json();
+  if (!data || !Number.isFinite(Number(data.price))) throw new Error("Proxy did not return a valid price.");
+  return { price: Number(data.price), change: Number(data.change) || 0, volume: Number(data.volume) || 0, timestamp: Number(data.timestamp) || Date.now(), source: data.source || "live" };
+}
+async function fetchLiveCandlesFromProxy(symbol, tf) {
+  const proxy = getProxyUrl();
+  if (!proxy) return null;
+  const res = await fetchWithTimeout(proxy.replace(/\/$/, "") + "/api/candles?symbol=" + encodeURIComponent(symbol) + "&timeframe=" + encodeURIComponent(tf || "1h"), {}, 10000);
+  if (!res.ok) throw new Error("Proxy returned HTTP " + res.status);
+  const data = await res.json();
+  const candles = data.candles || data;
+  if (!Array.isArray(candles) || !candles.length || !Number.isFinite(Number(candles[0].close))) throw new Error("Proxy did not return valid candles.");
+  return candles.map(function (c) { return { open: Number(c.open), high: Number(c.high), low: Number(c.low), close: Number(c.close), volume: Number(c.volume) || 0 }; });
+}
+function quoteIsFresh(quote) { return quote && Date.now() - quote.timestamp <= 60000; }
+function getTradingPrice(symbol) {
+  if (dataMode !== "live") return { price: markPrice(symbol), source: "simulated", fresh: true };
+  const quote = liveQuotes[symbol];
+  if (!quote) return { price: null, source: "live", fresh: false, reason: "No live quote for " + symbol + " has been fetched yet." };
+  if (!quoteIsFresh(quote)) return { price: null, source: "live", fresh: false, reason: "Live quote for " + symbol + " is stale (older than 60 seconds, at " + new Date(quote.timestamp).toLocaleTimeString() + "). Refresh live data before trading." };
+  return { price: quote.price, source: quote.source || "live", fresh: true, timestamp: quote.timestamp };
+}
+function updateDataStatus() {
+  const modeEl = document.getElementById("dataModeText");
+  const statusEl = document.getElementById("marketStatusText");
+  const liveEl = document.getElementById("liveStatus");
+  const proxyEl = document.getElementById("proxyUrl");
+  if (proxyEl && document.activeElement !== proxyEl) proxyEl.value = getProxyUrl();
+  if (dataMode === "live") {
+    const freshCount = Object.keys(liveQuotes).filter(function (sym) { return quoteIsFresh(liveQuotes[sym]); }).length;
+    if (modeEl) modeEl.textContent = "Live (via backend proxy)";
+    if (statusEl) statusEl.textContent = freshCount > 0 ? "Live mode: " + freshCount + " fresh quote(s). Trades in live mode use only fresh live quotes — stale or missing quotes are rejected, never silently replaced with sample prices." : "Live mode selected, but no fresh quotes are available. Trades are rejected until live data is refreshed successfully.";
+    if (liveEl) liveEl.textContent = freshCount > 0 ? "Live data: CONNECTED via proxy (test passed, " + freshCount + " fresh quote(s)). This is still paper trading — no real order is ever sent." : "Live data: NOT CONNECTED / quotes stale. App will not trade on live data until a fresh quote is fetched.";
+  } else {
+    if (modeEl) modeEl.textContent = "Simulated (active)";
+    if (statusEl) statusEl.textContent = "Simulated market: always open for practice. This is not a real market session, and prices are sample data, not live or delayed quotes.";
+    if (liveEl) liveEl.textContent = lastLiveTest ? "Live test passed for " + lastLiveTest.symbol + " at " + lastLiveTest.price + " (" + new Date(lastLiveTest.timestamp).toLocaleTimeString() + ") — live mode is NOT enabled yet, app is still simulated." : "Live data: NOT CONNECTED. App is running on simulated sample data.";
+  }
+}
+async function tryLiveData() {
+  const proxy = getProxyUrl();
+  if (!proxy) { alert("Live data test: NOT CONNECTED.\n\nNo backend proxy URL is saved. Enter your own backend proxy URL (no API key) first, or stay on simulated data. See BACKEND_SETUP.md."); updateDataStatus(); return false; }
+  try {
+    const quote = await fetchLiveQuoteFromProxy("AAPL");
+    liveQuotes["AAPL"] = quote;
+    lastLiveTest = { timestamp: quote.timestamp, symbol: "AAPL", price: quote.price };
+    document.getElementById("liveStatus").textContent = "Live test succeeded for AAPL: " + quote.price + " (" + (quote.source || "live") + ", " + new Date(quote.timestamp).toLocaleString() + "). Live mode is still not enabled until you tap Switch to Live Mode — and trading remains paper only.";
+    alert("Live test succeeded for AAPL at " + quote.price + " (" + (quote.source || "live") + ").\n\nThis was a test through your backend proxy. It does not enable live trading, and no real order was sent.");
+    updateDataStatus(); renderMarkets();
+    return true;
+  } catch (err) {
+    document.getElementById("liveStatus").textContent = "Live data: NOT CONNECTED (" + err.message + "). App stays on simulated sample data.";
+    alert("Live data test: NOT CONNECTED.\n\n" + err.message + "\n\nNo live price was used. Check your backend proxy URL and that the backend is running with its server-side key, then try again. See BACKEND_SETUP.md.");
+    updateDataStatus(); return false;
+  }
+}
+async function enableLiveMode() {
+  const ok = await tryLiveData();
+  if (!ok) { alert("Live mode was NOT enabled. Fix the backend connection first, or stay on simulated data."); return; }
+  dataMode = "live";
+  try { localStorage.setItem(DATA_MODE_KEY, "live"); } catch (e) {}
+  updateDataStatus(); renderMarkets(); drawChart();
+  alert("Live mode enabled (paper trading only).\n\nTrades will now use only fresh live quotes. Stale or missing quotes will be rejected, not replaced with sample prices. Sample-market advance is disabled in live mode.");
+}
+async function refreshLiveData() {
+  if (!getProxyUrl()) { alert("No backend proxy URL is saved. Save a proxy URL first, or stay on simulated data."); return; }
+  let okCount = 0, errors = [];
+  for (const symbol of Object.keys(prices)) {
+    try { liveQuotes[symbol] = await fetchLiveQuoteFromProxy(symbol); okCount++; } catch (err) { errors.push(symbol + ": " + err.message); }
+  }
+  try { liveCandles[document.getElementById("chartAsset").value] = await fetchLiveCandlesFromProxy(document.getElementById("chartAsset").value, chartTimeframe); } catch (err) { errors.push("candles: " + err.message); }
+  if (okCount > 0) { checkOrders(); updateDataStatus(); renderMarkets(); drawChart(); render(); }
+  alert("Live refresh: " + okCount + " quote(s) fetched." + (errors.length ? "\nErrors: " + errors.join("; ") : "") + "\n\nThis is still paper trading — no real order was sent.");
+  updateDataStatus();
+}
+async function onChartAssetChange() {
+  if (dataMode === "live" && getProxyUrl()) {
+    try { liveCandles[document.getElementById("chartAsset").value] = await fetchLiveCandlesFromProxy(document.getElementById("chartAsset").value, chartTimeframe); } catch (err) { /* drawChart will show the unavailable message */ }
+  }
+  drawChart();
+}
+function scanCandles(symbol, tf) {
+  if (dataMode === "live" && liveCandles[symbol] && liveCandles[symbol].length) return liveCandles[symbol];
+  return timeframeCandles(symbol, tf);
+}
+function runSimulatedScan() {
+  forceSimulatedScan = true;
+  scanMarket();
+  forceSimulatedScan = false;
+}
+async function callAiAssistant() {
+  const el = document.getElementById("aiBackendResult");
+  const proxy = getProxyUrl();
+  if (!proxy) {
+    el.textContent = "Real AI: NOT CONNECTED — no backend proxy URL is saved. The rule-based assistant below is the fallback, and it is always available. See AI_SETUP.md for how a backend AI connection would be configured (key server-side only).";
+    renderAiAssistant(); return;
+  }
+  el.textContent = "Asking the backend AI… (no key is sent from this page; the backend holds its own key server-side, if configured.)";
+  try {
+    const symbol = document.getElementById("aiAsset").value;
+    const tf = document.getElementById("aiTimeframe").value;
+    const analysis = aiAnalysis(symbol, tf);
+    const res = await fetchWithTimeout(proxy.replace(/\/$/, "") + "/api/ai/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symbol: symbol, timeframe: tf, dataSource: dataMode, indicators: { rsi: analysis.rsi, macd: analysis.macd, sma10: analysis.ma10, ema20: analysis.ema20, volatility: analysis.volatility, signal: analysis.signal } }) }, 15000);
+    if (!res.ok) throw new Error("Backend returned HTTP " + res.status);
+    const data = await res.json();
+    if (!data || !data.text) throw new Error("Backend did not return AI text.");
+    el.innerHTML = "<strong>AI response via backend (educational only, not financial advice, not a guarantee):</strong><br>" +
+      data.text.replace(/</g, "&lt;") + "<br><span class=\"notice\">Data identified to the AI as: " + (dataMode === "live" ? "live quotes (if fresh)" : "simulated sample data") + ". The rule-based assistant below remains available as a fallback.</span>";
+  } catch (err) {
+    el.textContent = "Real AI: NOT CONNECTED (" + err.message + "). Showing the rule-based fallback instead — it is not an AI-generated prediction.";
+    renderAiAssistant();
+  }
+}
+function updateOfflineStatus() {
+  const el = document.getElementById("offlineStatus");
+  if (!el) return;
+  el.textContent = navigator.onLine ? "Online" : "Offline";
+  el.style.opacity = navigator.onLine ? "1" : "0.6";
+}
+
+
+/* ================= PHASE 7: ACCOUNT EXPORT / IMPORT (SAFE, VALIDATED) ================= */
+/* Why this exists: localStorage is tied to one website address on one device.
+   Opening RIXO on a new hosted address starts fresh at $300 there. Exporting
+   and importing is the safe, manual way to move a simulated account.
+   The export never contains an API key, a proxy credential, or real account data,
+   and import ignores any credential-like fields if they are ever present. */
+function exportAccountData() {
+  let note = "";
+  try { note = localStorage.getItem(NOTE_KEY) || document.getElementById("journalNote").value || ""; } catch (e) {}
+  return {
+    format: "rixo-ai-trading-pro-export",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    account: JSON.parse(JSON.stringify(state)),
+    riskSettings: loadRiskSettings(),
+    journalNote: note
+  };
+}
+function exportAccount() {
+  const data = exportAccountData();
+  const text = JSON.stringify(data, null, 2);
+  const date = new Date().toISOString().slice(0, 10);
+  try {
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "rixo-ai-trading-pro-backup-" + date + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 1000);
+  } catch (e) { /* Download unavailable (e.g. in a test browser) — the JSON is still returned below. */ }
+  const el = document.getElementById("exportResult");
+  if (el) el.textContent = "Export ready: cash " + money(state.cash) + ", " + state.positions.length + " open position(s), " + state.history.length + " closed trade(s), " + (state.orders ? state.orders.length : 0) + " open order(s). Save this file — it contains no API keys. Import it on the other site/device with the Import button below.";
+  return text;
+}
+function validateImportedAccount(parsed) {
+  // Accept either the Phase 7 export format or a raw account object (cash/positions/history).
+  const raw = parsed && typeof parsed === "object" ? (parsed.account && typeof parsed.account === "object" ? parsed.account : parsed) : null;
+  if (!raw) return { ok: false, error: "Import file is not a valid RIXO export or account object." };
+  if (!Number.isFinite(Number(raw.cash))) return { ok: false, error: "Import rejected: cash balance is missing or not a number. Your current account was not changed." };
+  if (raw.positions !== undefined && !Array.isArray(raw.positions)) return { ok: false, error: "Import rejected: positions must be a list. Your current account was not changed." };
+  if (raw.history !== undefined && !Array.isArray(raw.history)) return { ok: false, error: "Import rejected: trade history must be a list. Your current account was not changed." };
+  if (raw.orders !== undefined && !Array.isArray(raw.orders)) return { ok: false, error: "Import rejected: orders must be a list. Your current account was not changed." };
+  // Clean, field by field — unknown fields (including any credential-like fields) are dropped, never stored.
+  const cleaned = {
+    cash: Number(raw.cash),
+    positions: (Array.isArray(raw.positions) ? raw.positions : []).map(function (pos) {
+      if (!pos || typeof pos !== "object") return null;
+      const clean = { kind: pos.kind === "option" ? "option" : "stock", symbol: String(pos.symbol || ""), cost: Number(pos.cost) || 0, entryFee: Number(pos.entryFee) || 0 };
+      if (clean.kind === "option") { clean.optionType = pos.optionType; clean.strike = Number(pos.strike) || 0; clean.expiryDays = Number(pos.expiryDays) || 7; clean.premiumEntry = Number(pos.premiumEntry) || 0; clean.contracts = Number(pos.contracts) || 0; }
+      else { clean.qty = Number(pos.qty) || 0; clean.entry = Number(pos.entry) || 0; }
+      if (pos.id !== undefined) clean.id = pos.id;
+      return clean.symbol ? clean : null;
+    }).filter(Boolean),
+    history: (Array.isArray(raw.history) ? raw.history : []).map(function (t) {
+      if (!t || typeof t !== "object") return null;
+      return { symbol: String(t.symbol || ""), qty: Number(t.qty) || 0, entry: Number(t.entry) || 0, exit: Number(t.exit) || 0, gross: Number(t.gross) || 0, fees: Number(t.fees) || 0, net: Number(t.net) || 0, date: String(t.date || "") };
+    }).filter(Boolean),
+    transactions: Array.isArray(raw.transactions) ? raw.transactions : [],
+    equityHistory: Array.isArray(raw.equityHistory) ? raw.equityHistory.filter(function (pt) { return pt && Number.isFinite(Number(pt.equity)); }) : [],
+    orders: Array.isArray(raw.orders) ? raw.orders : [],
+    orderHistory: Array.isArray(raw.orderHistory) ? raw.orderHistory : []
+  };
+  let riskSettings = null;
+  if (parsed && typeof parsed === "object" && parsed.riskSettings && typeof parsed.riskSettings === "object") {
+    riskSettings = { maxExposurePct: Math.min(100, Math.max(1, Number(parsed.riskSettings.maxExposurePct) || 50)), dailyLossPct: Math.min(100, Math.max(0.1, Number(parsed.riskSettings.dailyLossPct) || 2)) };
+  }
+  const journalNote = parsed && typeof parsed.journalNote === "string" ? parsed.journalNote : null;
+  return { ok: true, account: cleaned, riskSettings: riskSettings, journalNote: journalNote };
+}
+function importAccountFromText(text) {
+  let parsed;
+  try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: "Import rejected: file is not valid JSON. Your current account was not changed." }; }
+  const result = validateImportedAccount(parsed);
+  if (!result.ok) return result;
+  state = result.account;
+  saveState();
+  if (result.riskSettings) { try { localStorage.setItem(RISK_SETTINGS_KEY, JSON.stringify(result.riskSettings)); } catch (e) {} }
+  if (result.journalNote !== null) {
+    try { localStorage.setItem(NOTE_KEY, result.journalNote); } catch (e) {}
+    const noteEl = document.getElementById("journalNote"); if (noteEl) noteEl.value = result.journalNote;
+    const savedEl = document.getElementById("savedNote"); if (savedEl) savedEl.textContent = "Journal note restored from import.";
+  }
+  render();
+  return { ok: true, cash: state.cash, positions: state.positions.length, closedTrades: state.history.length, orders: state.orders.length };
+}
+function importAccountFromFile() {
+  const input = document.getElementById("importFile");
+  const resultEl = document.getElementById("importResult");
+  if (!input || !input.files || !input.files.length) { if (resultEl) resultEl.textContent = "Choose a RIXO export (.json) file first."; return; }
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    if (!confirm("Replace your current simulated account on THIS device/site with the imported account?\n\nThis cannot be undone on this device unless you exported your current account first. The import file's data will replace cash, positions, history, and orders here.")) return;
+    const result = importAccountFromText(reader.result);
+    if (resultEl) resultEl.textContent = result.ok ? "Import successful: cash " + money(result.cash) + ", " + result.positions + " open position(s), " + result.closedTrades + " closed trade(s), " + result.orders + " open order(s). Your old account on this device was replaced — keep your export file as a backup." : result.error;
+    if (!result.ok) alert(result.error);
+  };
+  reader.onerror = function () { if (resultEl) resultEl.textContent = "Could not read that file. Try exporting again from the original site/device."; };
+  reader.readAsText(file);
+}
+
+/* ================= RISK CALCULATOR ================= */
+function calculateRisk() {
+  const balance = Number(document.getElementById("calcBalance").value);
+  const pct = Number(document.getElementById("riskPct").value);
+  const entry = Number(document.getElementById("entry").value);
+  const stop = Number(document.getElementById("stop").value);
+  const rr = Number(document.getElementById("rr").value);
+  const el = document.getElementById("riskResult");
+  if (![balance, pct, entry, stop, rr].every(Number.isFinite) || balance <= 0 || pct <= 0 || pct > 100 || entry <= 0 || stop < 0 || entry === stop || rr <= 0) {
+    el.textContent = "Check your inputs. Entry and stop must differ, and all values must be valid.";
+    return;
+  }
+  const risk = balance * pct / 100;
+  const distance = Math.abs(entry - stop);
+  const qty = risk / distance;
+  const target = entry + (entry > stop ? 1 : -1) * distance * rr;
+  el.innerHTML = 'Maximum planned loss (stop-loss): <strong>' + money(risk) + '</strong><br>' +
+    'Estimated quantity / position size: <strong>' + qty.toFixed(6) + '</strong><br>' +
+    'Take-profit price at ' + rr + ':1 reward/risk: <strong>' + target.toFixed(4) + '</strong><br>' +
+    'Estimated gross target profit: <strong>' + money(risk * rr) + '</strong><br><br>' +
+    '<small>Excludes fees, slippage, gaps, and liquidity. Actual losses can exceed the estimate.</small>';
+}
+
+/* ================= NAVIGATION ================= */
+function showPage(id, button) {
+  document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); });
+  if (button) button.classList.add("active");
+  if (id === "home") drawChart();
+  if (id === "portfolio") drawPortfolioChart();
+}
+function scrollChart(delta) {
+  const symbol = document.getElementById("chartAsset").value;
+  const all = timeframeCandles(symbol,chartTimeframe);
+  chartOffset = Math.max(0, Math.min(Math.max(0,all.length - 8), chartOffset + delta));
+  drawChart();
+}
+
+/* ================= CANDLESTICK CHART (TOUCH) ================= */
+function drawChart() {
+  const canvas = document.getElementById("chart");
+  const box = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, box.clientWidth * dpr);
+  canvas.height = Math.max(1, box.clientHeight * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = box.clientWidth, h = box.clientHeight;
+  ctx.clearRect(0, 0, w, h);
+  const symbol = document.getElementById("chartAsset").value;
+  // Phase 6: in live mode, show live candles only. If none are available, show an unavailable message — never a sample chart disguised as live.
+  if (dataMode === "live" && (!liveCandles[symbol] || !liveCandles[symbol].length)) {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#958ba4"; ctx.font = "13px sans-serif";
+    ctx.fillText("Live candles unavailable.", 12, h / 2 - 10);
+    ctx.fillText("Refresh live data, or switch to Simulated mode.", 12, h / 2 + 12);
+    return;
+  }
+  const all = dataMode === "live" ? liveCandles[symbol] : timeframeCandles(symbol,chartTimeframe);
+  const visible = all.slice(Math.max(0, all.length - chartCount - chartOffset), all.length - chartOffset || undefined);
+  if (!visible.length) return;
+  const max = Math.max.apply(null, visible.map(function (c) { return c.high; }));
+  const min = Math.min.apply(null, visible.map(function (c) { return c.low; }));
+  const pad = 16;
+  const chartH = h - 2 * pad;
+  const y = function (v) { return pad + (max - v) / (max - min || 1) * chartH; };
+  const step = w / visible.length;
+  const body = Math.max(2, step * 0.52);
+  ctx.font = "10px sans-serif";
+  ctx.strokeStyle = "#30243c";
+  ctx.fillStyle = "#958ba4";
+  for (let i = 0; i < 5; i++) {
+    const yy = pad + i * chartH / 4;
+    ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(w, yy); ctx.stroke();
+    const value = max - (max - min) * i / 4;
+    ctx.fillText(value.toFixed(symbol === "EURUSD" ? 4 : 2), 6, yy - 2);
+  }
+  visible.forEach(function (c, i) {
+    const x = i * step + step / 2;
+    const up = c.close >= c.open;
+    const color = up ? "#35e6a1" : "#ff5577";
+    ctx.strokeStyle = color;
+    ctx.beginPath(); ctx.moveTo(x, y(c.high)); ctx.lineTo(x, y(c.low)); ctx.stroke();
+    ctx.fillStyle = color;
+    const top = y(Math.max(c.open, c.close));
+    const height = Math.max(1, Math.abs(y(c.open) - y(c.close)));
+    ctx.fillRect(x - body / 2, top, body, height);
+  });
+  // Phase 5 volume bars (sample volume only), drawn translucent at the bottom of the chart.
+  (function drawVolumeBars() {
+    const vols = visible.map(function (c) { return c.volume || 0; });
+    const maxVol = Math.max.apply(null, vols) || 1;
+    visible.forEach(function (c, i) {
+      const x = i * step + step / 2;
+      const barH = (c.volume || 0) / maxVol * chartH * 0.18;
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = c.close >= c.open ? "#35e6a1" : "#ff5577";
+      ctx.fillRect(x - body / 2, h - pad - barH, body, barH);
+      ctx.globalAlpha = 1;
+    });
+    ctx.fillStyle = "#958ba4"; ctx.font = "9px sans-serif";
+    ctx.fillText("Volume (sample)", 6, h - 4);
+  })();
+  const closeValues=all.map(c=>c.close), start=all.length-chartOffset-visible.length;
+  function plotSeries(key,color){if(!activeIndicators[key])return;ctx.strokeStyle=color;ctx.lineWidth=1.7;ctx.beginPath();let began=false;visible.forEach((c,i)=>{const idx=start+i;let v=null;if(key==='sma')v=smaAt(closeValues,idx,10);if(key==='ema')v=emaSeries(closeValues.slice(0,idx+1),20).at(-1);if(v===null)return;const xx=i*step+step/2;if(!began){ctx.moveTo(xx,y(v));began=true}else ctx.lineTo(xx,y(v));});ctx.stroke();ctx.lineWidth=1;}
+  plotSeries('sma','#f1c86a');plotSeries('ema','#67d6ff');
+  if(activeIndicators.bands){for(const side of [-1,1]){ctx.beginPath();ctx.strokeStyle='#b47bff';let started=false;visible.forEach((c,i)=>{const idx=start+i;if(idx<19)return;const seg=closeValues.slice(idx-19,idx+1),mean=seg.reduce((a,b)=>a+b,0)/20,sd=Math.sqrt(seg.reduce((a,b)=>a+(b-mean)**2,0)/20),xx=i*step+step/2,yy=y(mean+side*2*sd);if(!started){ctx.moveTo(xx,yy);started=true}else ctx.lineTo(xx,yy)});ctx.stroke();}}
+  const last = visible[visible.length - 1].close;
+  ctx.strokeStyle = "#a855f7";
+  ctx.beginPath(); ctx.moveTo(0, y(last)); ctx.lineTo(w, y(last)); ctx.stroke();
+}
+/* Touch / mouse drag to scroll, tap to inspect a candle. */
+(function initChartTouch() {
+  const canvas = document.getElementById("chart");
+  canvas.addEventListener("pointerdown", function (e) {
+    drag = { x: e.clientX, offset: chartOffset, moved: false };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 5) drag.moved = true;
+    const symbol = document.getElementById("chartAsset").value;
+    const all = timeframeCandles(symbol,chartTimeframe);
+    const step = canvas.parentElement.clientWidth / chartCount;
+    chartOffset = Math.max(0, Math.min(Math.max(0,all.length - 8), drag.offset + Math.round(dx / step)));
+    drawChart();
+  });
+  function endDrag(e) {
+    if (!drag) return;
+    if (!drag.moved) {
+      const box = canvas.parentElement;
+      const rect = box.getBoundingClientRect();
+      const symbol = document.getElementById("chartAsset").value;
+      const all = timeframeCandles(symbol,chartTimeframe);
+      const visible = all.slice(Math.max(0, all.length - chartCount - chartOffset), all.length - chartOffset || undefined);
+      const idx = Math.floor((e.clientX - rect.left) / (rect.width / visible.length));
+      const c = visible[Math.max(0, Math.min(visible.length - 1, idx))];
+      if (c) document.getElementById("candleInfo").textContent =
+        symbol + " sample candle — Open " + c.open.toFixed(4) + " · High " + c.high.toFixed(4) +
+        " · Low " + c.low.toFixed(4) + " · Close " + c.close.toFixed(4) + ". Sample data only.";
+    }
+    drag = null;
+  }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", function () { drag = null; });
+  window.addEventListener("resize", drawChart);
+})();
+
+(function initPortfolioChartTap() {
+  const canvas = document.getElementById("portfolioChart");
+  if (!canvas) return;
+  canvas.addEventListener("pointerup", function (e) {
+    if (!canvas._pts || !canvas._x) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const w = rect.width;
+    const idx = Math.round((e.clientX - rect.left - 16) / Math.max(1, (w - 32) / Math.max(1, canvas._pts.length - 1)));
+    const pt = canvas._pts[Math.max(0, Math.min(canvas._pts.length - 1, idx))];
+    if (pt) document.getElementById("portfolioChartInfo").textContent = "Simulated equity: " + money(pt.equity) + " on " + new Date(pt.t).toLocaleString() + ". Sample data only.";
+  });
+})();
+/* ================= INIT + PWA REGISTRATION ================= */
+try {
+  const savedNote = localStorage.getItem(NOTE_KEY);
+  if (savedNote) { document.getElementById("journalNote").value = savedNote; document.getElementById("savedNote").textContent = "Saved note loaded from this device."; }
+} catch (e) {}
+const originalRender=render;
+render=function(){originalRender();updateProPortfolio();};
+function updateProPortfolio(){
+ const value=state.positions.reduce((sum,p)=>sum+(p.kind==='option'?optionPremium(p.symbol,p.strike,p.optionType,p.expiryDays)*100*p.contracts:(Number(p.qty)||0)*markPrice(p.symbol)),0);
+ const unrealized=value-state.positions.reduce((sum,p)=>sum+(Number(p.cost)||0)+(Number(p.entryFee)||0),0);
+ const equity=state.cash+value;
+ const el=document.getElementById('pfUnrealized');if(el)el.textContent=money(unrealized);
+ const net=document.getElementById('pfNetReturn');if(net)net.textContent=((equity/STARTING_CASH-1)*100).toFixed(2)+'%';
+ const allocations={};state.positions.forEach(p=>{const category=p.kind==='option'?'Options':(categories[p.symbol]||'other');allocations[category]=(allocations[category]||0)+(p.kind==='option'?optionPremium(p.symbol,p.strike,p.optionType,p.expiryDays)*100*p.contracts:(Number(p.qty)||0)*markPrice(p.symbol))});
+ const allocation=document.getElementById('portfolioAllocation');if(allocation){const totalAlloc=Object.values(allocations).reduce((a,b)=>a+b,0);allocation.textContent=Object.keys(allocations).length?Object.entries(allocations).map(([k,v])=>k+': '+money(v)+' ('+(totalAlloc>0?(v/totalAlloc*100).toFixed(1):'0.0')+'%)').join(' · '):'No investments yet. Your $300 starts as available paper cash.';}
+}
+render();
+if (!state.equityHistory.length) recordEquity();
+updateDataStatus();
+updateOfflineStatus();
+window.addEventListener("online", updateOfflineStatus);
+window.addEventListener("offline", updateOfflineStatus);
+drawChart();
+drawPortfolioChart();
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
